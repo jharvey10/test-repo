@@ -1,4 +1,5 @@
 ---
+title: Home
 has_children: true
 ---
 
