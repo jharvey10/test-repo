@@ -1,5 +1,5 @@
 ---
-parent: It's a documentation site!
+parent: Home
 ---
 
 # This is another file
