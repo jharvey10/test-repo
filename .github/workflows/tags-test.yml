@@ -1,0 +1,15 @@
+name: CI - Logging Service
+on:
+  push:
+    tags:
+      - '@carbon-platform/*@*.*.*'
+
+jobs:
+  tags-test:
+    name: Tags Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: output test
+        run: |
+          echo ${{ github.ref }}
+          echo ${{ github.ref_name }}
