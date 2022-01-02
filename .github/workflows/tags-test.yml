@@ -1,4 +1,4 @@
-name: CI - Logging Service
+name: Tags Test
 on:
   push:
     tags:
