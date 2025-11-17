@@ -30,7 +30,7 @@ jobs:
       with:
         fetch-depth: 0
         token: ${{ steps.app-token.outputs.token }}
-        persist-credentials: true # Needed to carry forward the credentials to other git operations
+        persist-credentials: false
 
     - name: Install ghr
       run: |
@@ -38,14 +38,6 @@ jobs:
         tar -xzf ghr_v0.16.2_linux_amd64.tar.gz
         sudo mv ghr_v0.16.2_linux_amd64/ghr /usr/local/bin/
         ghr --version
-
-    # - name: Configure Git User
-    #   env:
-    #     APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
-    #     APP_ID: ${{ steps.app-token.outputs.app-id }}
-    #   run: |
-    #     git config user.name '${env:APP_SLUG}[bot]'
-    #     git config user.email '${env:APP_ID}+${env:APP_SLUG}[bot]@users.noreply.github.com'
 
     - name: Publish
       run: |
