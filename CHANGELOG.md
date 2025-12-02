@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.1](https://github.com/jharvey10/test-repo/compare/v1.13.0...v1.13.1) (2025-12-02)
+
+
+### Bug Fixes 🐛
+
+* trying out release enrichment ([#11](https://github.com/jharvey10/test-repo/issues/11)) ([e8124ab](https://github.com/jharvey10/test-repo/commit/e8124abb8a3927574459dc7a55b97a837a374aa3))
+
 ## [1.13.0](https://github.com/jharvey10/test-repo/compare/v1.12.0...v1.13.0) (2025-12-02)
 
 
