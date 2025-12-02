@@ -41,7 +41,7 @@ jobs:
               const username = pr.user.login;
 
               console.log(`PR #${prNumber} authored by @${username}`);
-              newReleaseBody = newReleaseBody.replace(prMatch[0], `${prMatch[0]} (@${username})`);
+              newReleaseBody = newReleaseBody.replace(line, `${line} (@${username})`);
             }
 
             await github.rest.repos.updateRelease({
