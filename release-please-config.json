@@ -17,14 +17,14 @@
   "draft-pull-request": true,
   "packages": {
     ".": {
-      "changelog-path": "CHANGELOG.md"
-    },
-    "operations/helm/charts/alloy": {
-      "release-type": "helm",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         "operations/helm/charts/alloy/Chart.yaml"
       ]
+    },
+    "operations/helm/charts/alloy": {
+      "release-type": "helm",
+      "changelog-path": "CHANGELOG.md"
     }
   }
 }
