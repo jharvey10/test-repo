@@ -17,7 +17,10 @@
   "draft-pull-request": true,
   "packages": {
     ".": {
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        "operations/helm/charts/alloy/Chart.yaml"
+      ]
     }
   }
 }
