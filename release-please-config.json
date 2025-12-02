@@ -21,10 +21,6 @@
       "extra-files": [
         "operations/helm/charts/alloy/Chart.yaml"
       ]
-    },
-    "operations/helm/charts/alloy": {
-      "release-type": "helm",
-      "changelog-path": "CHANGELOG.md"
     }
   }
 }
