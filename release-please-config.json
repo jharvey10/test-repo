@@ -14,7 +14,7 @@
     { "type": "chore", "section": "Chores", "hidden": true },
     { "type": "revert", "section": "Reverts", "hidden": true }
   ],
-  "draft": true,
+  "draft-pull-request": true,
   "packages": {
     ".": {
       "changelog-path": "CHANGELOG.md"
