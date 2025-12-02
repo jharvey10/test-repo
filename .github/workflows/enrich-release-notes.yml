@@ -26,6 +26,7 @@ jobs:
             const release = context.payload.release;
             const releaseBody = release.body || '';
             const lines = releaseBody.split('\n');
+            let newReleaseBody = releaseBody;
 
             for (const line of lines) {
               const prMatch = line.match(/\[#(\d+)\]\([^)]+\)/);
@@ -35,19 +36,19 @@ jobs:
               const { data: pr } = await github.rest.pulls.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                pull_number: prNumber,
+                pull_number: prNumber
               });
               const username = pr.user.login;
 
               console.log(`PR #${prNumber} authored by @${username}`);
-              releaseBody = releaseBody.replace(prMatch[0], `${prMatch[0]} (@${username})`);
+              newReleaseBody = newReleaseBody.replace(prMatch[0], `${prMatch[0]} (@${username})`);
             }
 
             await github.rest.repos.updateRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: release.id,
-              body: releaseBody,
+              body: newReleaseBody
             });
 
             console.log('Release notes updated successfully with contributor information');
