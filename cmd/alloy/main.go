@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	fmt.Println("Starting Alloy...")
+	fmt.Println("Starting Alloy \\{^_^}/")
 
 	r := runner.New()
 	if err := r.Run(); err != nil {
