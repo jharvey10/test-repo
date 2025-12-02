@@ -19,7 +19,11 @@
     ".": {
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
-        "operations/helm/charts/alloy/Chart.yaml"
+        {
+          "type": "yaml",
+          "path": "operations/helm/charts/alloy/Chart.yaml",
+          "jsonpath": "$.appVersion"
+        }
       ]
     }
   }
