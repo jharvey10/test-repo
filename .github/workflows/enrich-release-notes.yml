@@ -1,0 +1,100 @@
+name: Enrich Release Notes with Contributors
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  enrich-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate token 🔐
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Enrich release notes with contributors 🙋
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const release = context.payload.release;
+            const releaseBody = release.body || '';
+
+            // Find all PR references in the format (#123) or [#123]
+            const prRegex = /\[#(\d+)\]\([^)]+\)/g;
+            const prNumbers = new Set();
+            let match;
+
+            while ((match = prRegex.exec(releaseBody)) !== null) {
+              prNumbers.add(parseInt(match[1], 10));
+            }
+
+            if (prNumbers.size === 0) {
+              console.log('No PR references found in release notes');
+              return;
+            }
+
+            console.log(`Found ${prNumbers.size} PR references: ${[...prNumbers].join(', ')}`);
+
+            // Look up the author for each PR
+            const contributors = new Map();
+
+            for (const prNumber of prNumbers) {
+              try {
+                const { data: pr } = await github.rest.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber,
+                });
+
+                const username = pr.user.login;
+                if (!contributors.has(username)) {
+                  contributors.set(username, []);
+                }
+                contributors.get(username).push(prNumber);
+                console.log(`PR #${prNumber} authored by @${username}`);
+              } catch (error) {
+                console.log(`Could not fetch PR #${prNumber}: ${error.message}`);
+              }
+            }
+
+            if (contributors.size === 0) {
+              console.log('No contributors found');
+              return;
+            }
+
+            // Update each changelog line with the contributor
+            let updatedBody = releaseBody;
+
+            for (const [username, prs] of contributors) {
+              for (const prNumber of prs) {
+                // Match the PR link pattern and append username after the commit link
+                const prPattern = new RegExp(
+                  `(\\[#${prNumber}\\]\\([^)]+\\)\\s*\\([^)]+\\))`,
+                  'g'
+                );
+                updatedBody = updatedBody.replace(prPattern, `$1 (@${username})`);
+              }
+            }
+
+            // Add contributors section at the bottom
+            const sortedContributors = [...contributors.keys()].sort();
+            const contributorsSection = `\n\n---\n\n## Contributors\n\nThank you to all contributors for this release! 🎉\n\n${sortedContributors.map(u => `* @${u}`).join('\n')}`;
+
+            updatedBody += contributorsSection;
+
+            // Update the release
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: release.id,
+              body: updatedBody,
+            });
+
+            console.log('Release notes updated successfully with contributor information');

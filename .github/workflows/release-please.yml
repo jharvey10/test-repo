@@ -13,7 +13,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - name: 'Generate token 🔐'
+      - name: Generate token 🔐
         uses: actions/create-github-app-token@v1
         id: app-token
         with:
@@ -25,3 +25,4 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+          draft-pull-request: true

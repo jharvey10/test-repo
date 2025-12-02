@@ -15,7 +15,7 @@ jobs:
     name: Validate PR title
     runs-on: ubuntu-latest
     steps:
-      - name: 'Generate token 🔐'
+      - name: Generate token 🔐
         uses: actions/create-github-app-token@v1
         id: app-token
         with:
