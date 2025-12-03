@@ -1,12 +1,8 @@
 # Grafana Alloy Helm chart
 
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
-<!-- x-release-please-start-version -->
-![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square)
-<!-- x-release-please-end -->
-<!-- x-release-please-start-version -->
-![AppVersion: v1.12.0](https://img.shields.io/badge/AppVersion-v1.12.0-informational?style=flat-square)
-<!-- x-release-please-start-version -->
+![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) <!-- x-release-please-version -->
+![AppVersion: v1.12.0](https://img.shields.io/badge/AppVersion-v1.12.0-informational?style=flat-square) <!-- x-release-please-version -->
 
 Helm chart for deploying [Grafana Alloy][] to Kubernetes.
 
