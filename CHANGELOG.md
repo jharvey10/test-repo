@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.14.0](https://github.com/jharvey10/test-repo/compare/v1.13.4...v1.14.0) (2025-12-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* here is the extended reason for why this is a breaking change.
+
+### Features 🌟
+
+* adjusting a thing ([ae0367a](https://github.com/jharvey10/test-repo/commit/ae0367a828879c730301c02cb74b8bbfd13f47c6))
+* try out helm stuff ([#25](https://github.com/jharvey10/test-repo/issues/25)) ([5a6f6ac](https://github.com/jharvey10/test-repo/commit/5a6f6ac7aa0130e48840018b1921a741ed93e1ef))
+
+
+### Chores
+
+* release 1.14.0 ([#22](https://github.com/jharvey10/test-repo/issues/22)) ([0bb8f94](https://github.com/jharvey10/test-repo/commit/0bb8f94942c6940c7d859edfa83c8cc376ef6e7c))
+
 ## [1.13.4](https://github.com/jharvey10/test-repo/compare/v1.13.3...v1.13.4) (2025-12-02)
 
 
