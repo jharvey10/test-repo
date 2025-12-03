@@ -3,7 +3,8 @@ name: alloy
 description: 'Grafana Alloy'
 type: application
 version: 1.5.0
-appVersion: 'v1.12.0' # x-release-please-version
+# NOTE: appVersion no longer has "v" prefix - update _helpers.tpl to prepend "v" when using .Chart.AppVersion
+appVersion: '1.12.0'
 icon: https://raw.githubusercontent.com/grafana/alloy/main/docs/sources/assets/alloy_icon_orange.svg
 
 dependencies:
