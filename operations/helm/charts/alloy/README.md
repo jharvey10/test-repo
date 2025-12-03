@@ -2,10 +2,10 @@
 
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 <!-- x-release-please-start-version -->
-![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square)
+![Version: 1.14.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square)
 <!-- x-release-please-end -->
 <!-- x-release-please-start-version -->
-![AppVersion: v1.12.0](https://img.shields.io/badge/AppVersion-v1.12.0-informational?style=flat-square)
+![AppVersion: v1.14.0](https://img.shields.io/badge/AppVersion-v1.12.0-informational?style=flat-square)
 <!-- x-release-please-start-version -->
 
 Helm chart for deploying [Grafana Alloy][] to Kubernetes.
@@ -55,7 +55,7 @@ useful if just using the default DaemonSet isn't sufficient.
 | alloy.hostAliases | list | `[]` | Host aliases to add to the Alloy container. |
 | alloy.initialDelaySeconds | int | `10` | Initial delay for readiness probe. |
 | alloy.lifecycle | object | `{}` | Set lifecycle hooks for the Grafana Alloy container. |
-| alloy.listenAddr | string | `"0.0.0.0"` | Address to listen for traffic on. 0.0.0.0 exposes the UI to other containers. |
+| alloy.listenAddr | string | `"1.14.0.0"` | Address to listen for traffic on. 0.0.0.0 exposes the UI to other containers. |
 | alloy.listenPort | int | `12345` | Port to listen for traffic on. |
 | alloy.listenScheme | string | `"HTTP"` | Scheme is needed for readiness probes. If enabling tls in your configs, set to "HTTPS" |
 | alloy.livenessProbe | object | `{}` | Set livenessProbe for the Grafana Alloy container. |
@@ -73,7 +73,7 @@ useful if just using the default DaemonSet isn't sufficient.
 | configReloader.image.digest | string | `""` | SHA256 digest of image to use for config reloading (either in format "sha256:XYZ" or "XYZ"). When set, will override `configReloader.image.tag` |
 | configReloader.image.registry | string | `"quay.io"` | Config reloader image registry (defaults to docker.io) |
 | configReloader.image.repository | string | `"prometheus-operator/prometheus-config-reloader"` | Repository to get config reloader image from. |
-| configReloader.image.tag | string | `"v0.81.0"` | Tag of image to use for config reloading. |
+| configReloader.image.tag | string | `"v1.14.0"` | Tag of image to use for config reloading. |
 | configReloader.resources | object | `{"requests":{"cpu":"10m","memory":"50Mi"}}` | Resource requests and limits to apply to the config reloader container. |
 | configReloader.securityContext | object | `{}` | Security context to apply to the Grafana configReloader container. |
 | controller.affinity | object | `{}` | Affinity configuration for pods. |
@@ -248,7 +248,7 @@ Port numbers specified must be 0 < x < 65535.
 ### alloy.listenAddr
 
 `alloy.listenAddr` allows for restricting which address Alloy listens on
-for network traffic on its HTTP server. By default, this is `0.0.0.0` to allow
+for network traffic on its HTTP server. By default, this is `1.14.0.0` to allow
 its UI to be exposed when port-forwarding and to expose its metrics to other
 Alloy instances in the cluster.
 

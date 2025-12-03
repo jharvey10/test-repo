@@ -1,13 +1,12 @@
 apiVersion: v2
 name: alloy
-description: 'Grafana Alloy'
+description: Grafana Alloy
 type: application
-version: 1.5.0
-# NOTE: appVersion no longer has "v" prefix - update _helpers.tpl to prepend "v" when using .Chart.AppVersion
-appVersion: '1.12.0'
-icon: https://raw.githubusercontent.com/grafana/alloy/main/docs/sources/assets/alloy_icon_orange.svg
-
+version: 1.14.0
+appVersion: 1.12.0
+icon: >-
+  https://raw.githubusercontent.com/grafana/alloy/main/docs/sources/assets/alloy_icon_orange.svg
 dependencies:
   - name: crds
-    version: "0.0.0"
+    version: 0.0.0
     condition: crds.create
