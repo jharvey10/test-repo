@@ -1,6 +1,5 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-  "release-type": "go",
   "changelog-sections": [
     { "type": "feat", "section": "Features 🌟" },
     { "type": "fix", "section": "Bug Fixes 🐛" },
@@ -18,6 +17,7 @@
   "separate-pull-requests": true,
   "packages": {
     ".": {
+      "release-type": "go",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
@@ -32,6 +32,7 @@
       ]
     },
     "operations/helm/charts/alloy": {
+      "release-type": "helm",
       "changelog-path": "CHANGELOG.md",
       "component": "helm",
       "extra-files": [
