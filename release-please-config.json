@@ -15,6 +15,7 @@
     { "type": "revert", "section": "Reverts", "hidden": true }
   ],
   "draft-pull-request": true,
+  "separate-pull-requests": true,
   "packages": {
     ".": {
       "changelog-path": "CHANGELOG.md",
@@ -23,6 +24,25 @@
           "type": "yaml",
           "path": "operations/helm/charts/alloy/Chart.yaml",
           "jsonpath": "$.appVersion"
+        },
+        {
+          "type": "generic",
+          "path": "operations/helm/charts/alloy/README.md"
+        }
+      ]
+    },
+    "operations/helm/charts/alloy": {
+      "changelog-path": "CHANGELOG.md",
+      "component": "helm",
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "Chart.yaml",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "generic",
+          "path": "README.md"
         }
       ]
     }
