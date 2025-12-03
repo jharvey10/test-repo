@@ -24,10 +24,6 @@
           "type": "yaml",
           "path": "operations/helm/charts/alloy/Chart.yaml",
           "jsonpath": "$.appVersion"
-        },
-        {
-          "type": "generic",
-          "path": "operations/helm/charts/alloy/README.md"
         }
       ]
     },
