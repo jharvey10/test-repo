@@ -33,8 +33,9 @@
     },
     "operations/helm/charts/alloy": {
       "release-type": "helm",
-      "changelog-path": "CHANGELOG.md",
       "component": "helm",
+      "changelog-path": "CHANGELOG.md",
+      "release-as": "",
       "extra-files": [
         {
           "type": "yaml",
