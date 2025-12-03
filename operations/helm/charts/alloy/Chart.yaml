@@ -3,7 +3,7 @@ name: alloy
 description: Grafana Alloy
 type: application
 version: 1.5.0
-appVersion: 1.14.0
+appVersion: 1.15.0
 icon: >-
   https://raw.githubusercontent.com/grafana/alloy/main/docs/sources/assets/alloy_icon_orange.svg
 dependencies:
