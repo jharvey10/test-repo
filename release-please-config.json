@@ -16,6 +16,8 @@
   "draft-pull-request": true,
   "packages": {
     ".": {
+      "prerelease": "true",
+      "prerelease-type": "rc.",
       "release-type": "go",
       "changelog-path": "CHANGELOG.md"
     }
