@@ -17,7 +17,13 @@
   "packages": {
     ".": {
       "release-type": "go",
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "docs/sources/_index.md"
+        }
+      ]
     }
   }
 }
