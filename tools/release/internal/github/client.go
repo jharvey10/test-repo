@@ -57,7 +57,7 @@ func NewClient(ctx context.Context, token string) *github.Client {
 func BranchExists(ctx context.Context, client *github.Client, owner, repo, branch string) (bool, error) {
 	_, _, err := client.Repositories.GetBranch(ctx, owner, repo, branch, 0)
 	if err != nil {
-		if _, ok := err.(*github.ErrorResponse); ok {
+		if errResp, ok := err.(*github.ErrorResponse); ok && errResp.Response.StatusCode == 404 {
 			return false, nil
 		}
 		return false, err
