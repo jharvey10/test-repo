@@ -57,9 +57,13 @@ func NewClient(ctx context.Context, token string) *github.Client {
 
 // BranchExists checks if a branch exists in the repository.
 func BranchExists(ctx context.Context, client *github.Client, owner, repo, branch string) (bool, error) {
-	_, _, err := client.Repositories.GetBranch(ctx, owner, repo, branch, 0)
+	_, resp, err := client.Repositories.GetBranch(ctx, owner, repo, branch, 0)
 	if err != nil {
-		// Check for 404 using errors.As for proper unwrapping
+		// Check response status code directly (most reliable)
+		if resp != nil && resp.StatusCode == http.StatusNotFound {
+			return false, nil
+		}
+		// Also check for ErrorResponse type
 		var errResp *github.ErrorResponse
 		if errors.As(err, &errResp) && errResp.Response.StatusCode == http.StatusNotFound {
 			return false, nil
