@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0-rc.1](https://github.com/jharvey10/test-repo/compare/v1.15.0-rc.0...v1.15.0-rc.1) (2025-12-04)
+
+
+### Bug Fixes 🐛
+
+* the wowfile needed fixing ([1a7a25d](https://github.com/jharvey10/test-repo/commit/1a7a25ddd575f5ac47714ed1123b206de4d71e1b))
+
 ## [1.15.0-rc.0](https://github.com/jharvey10/test-repo/compare/v1.14.0...v1.15.0-rc.0) (2025-12-04)
 
 
