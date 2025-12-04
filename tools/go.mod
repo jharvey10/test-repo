@@ -1,9 +1,10 @@
-module github.com/grafana/alloy/tools/create-rc
+module github.com/grafana/alloy/tools
 
 go 1.25.1
 
 require (
 	github.com/google/go-github/v57 v57.0.0
+	golang.org/x/mod v0.30.0
 	golang.org/x/oauth2 v0.33.0
 )
 

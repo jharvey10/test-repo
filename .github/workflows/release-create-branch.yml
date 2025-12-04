@@ -1,19 +1,23 @@
-name: Create Release Candidate
+name: Create Release Branch
 
 on:
   workflow_dispatch:
     inputs:
+      source_ref:
+        description: 'Source ref to branch from (default: main)'
+        required: false
+        default: 'main'
+        type: string
       dry_run:
-        description: 'Dry run (do not create tag or release)'
+        description: 'Dry run (do not create branch)'
         type: boolean
         default: true # For safety!
 
 permissions:
   contents: write
-  pull-requests: read
 
 jobs:
-  create-rc:
+  create-branch:
     runs-on: ubuntu-latest
     steps:
       - name: Generate token 🔐
@@ -26,18 +30,19 @@ jobs:
       - name: Checkout repository 🛎️
         uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.source_ref }}
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: tools/create-rc/go.mod
-          cache-dependency-path: tools/create-rc/go.sum
+          go-version-file: tools/go.mod
+          cache-dependency-path: tools/go.sum
 
-      - name: Run create-rc tool
+      - name: Run create-release-branch tool
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          cd tools/create-rc
-          go run . ${{ inputs.dry_run == true && '--dry-run' || '' }}
+          cd tools
+          go run ./release/create-release-branch --source "${{ inputs.source_ref }}" ${{ inputs.dry_run == true && '--dry-run' || '' }}

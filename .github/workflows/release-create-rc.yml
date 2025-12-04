@@ -1,0 +1,53 @@
+name: Create Release Candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (do not create tag or release)'
+        type: boolean
+        default: true # For safety!
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  create-rc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate token 🔐
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Validate branch format
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          if [[ ! "$BRANCH" =~ ^release/v[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::This workflow must be run from a release branch (release/vX.Y)"
+            echo "::error::Selected branch: $BRANCH"
+            exit 1
+          fi
+          echo "✅ Running on release branch: $BRANCH"
+
+      - name: Checkout repository 🛎️
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: tools/go.mod
+          cache-dependency-path: tools/go.sum
+
+      - name: Run create-rc tool
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          cd tools
+          go run ./release/create-rc --branch "${{ github.ref_name }}" ${{ inputs.dry_run == true && '--dry-run' || '' }}

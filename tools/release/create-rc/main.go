@@ -5,59 +5,68 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 	"regexp"
 	"sort"
 	"strconv"
-	"strings"
 
 	"github.com/google/go-github/v57/github"
-	"golang.org/x/oauth2"
+
+	gh "github.com/grafana/alloy/tools/release/internal/github"
+	"github.com/grafana/alloy/tools/release/internal/version"
 )
 
-type Config struct {
-	Owner  string
-	Repo   string
-	Token  string
-	DryRun bool
-}
-
 func main() {
-	cfg := parseFlags()
+	var (
+		dryRun        bool
+		releaseBranch string
+	)
+	flag.BoolVar(&dryRun, "dry-run", false, "Dry run (do not create tag or release)")
+	flag.StringVar(&releaseBranch, "branch", "", "Release branch to create RC for (e.g., release/v1.15)")
+	flag.Parse()
 
-	if cfg.Token == "" {
-		log.Fatal("GITHUB_TOKEN environment variable is required")
+	if releaseBranch == "" {
+		log.Fatal("Release branch is required (use --branch flag, e.g., --branch release/v1.15)")
+	}
+
+	if _, err := version.ParseReleaseBranch(releaseBranch); err != nil {
+		log.Fatal(err)
+	}
+
+	cfg, err := gh.NewRepoConfigFromEnv()
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	ctx := context.Background()
-	client := newGitHubClient(ctx, cfg.Token)
+	client := gh.NewClient(ctx, cfg.Token)
 
-	// Find the release-please PR
-	pr, err := findReleasePleasePR(ctx, client, cfg.Owner, cfg.Repo)
+	// Find the release-please PR for the specified branch
+	pr, err := findReleasePleasePR(ctx, client, cfg.Owner, cfg.Repo, releaseBranch)
 	if err != nil {
 		log.Fatalf("Failed to find release-please PR: %v", err)
 	}
 
 	fmt.Printf("Found release-please PR #%d: %s\n", pr.GetNumber(), pr.GetTitle())
-	fmt.Printf("Branch: %s\n", pr.GetHead().GetRef())
+	fmt.Printf("Base branch: %s\n", pr.GetBase().GetRef())
+	fmt.Printf("Head branch: %s\n", pr.GetHead().GetRef())
 
 	// Extract version from PR title
-	version, err := extractVersionFromTitle(pr.GetTitle())
+	ver, err := extractVersionFromTitle(pr.GetTitle())
 	if err != nil {
 		log.Fatalf("Failed to extract version from PR title: %v", err)
 	}
-	fmt.Printf("Target version: %s\n", version)
+	fmt.Printf("Target version: %s\n", ver)
 
 	// Find existing RC tags and determine next RC number
-	rcNumber, err := findNextRCNumber(ctx, client, cfg.Owner, cfg.Repo, version)
+	rcNumber, err := findNextRCNumber(ctx, client, cfg.Owner, cfg.Repo, ver)
 	if err != nil {
 		log.Fatalf("Failed to determine next RC number: %v", err)
 	}
 
-	rcTag := fmt.Sprintf("v%s-rc.%d", version, rcNumber)
+	rcTag := fmt.Sprintf("v%s-rc.%d", ver, rcNumber)
 	fmt.Printf("Next RC tag: %s\n", rcTag)
 
-	if cfg.DryRun {
+	if dryRun {
 		fmt.Println("\n🏃 DRY RUN - No changes made")
 		fmt.Printf("Would create tag: %s\n", rcTag)
 		fmt.Printf("From branch: %s\n", pr.GetHead().GetRef())
@@ -69,58 +78,24 @@ func main() {
 	fmt.Printf("Branch HEAD SHA: %s\n", branchSHA)
 
 	// Create the tag
-	err = createTag(ctx, client, cfg.Owner, cfg.Repo, rcTag, branchSHA)
+	err = gh.CreateTag(ctx, client, cfg.Owner, cfg.Repo, rcTag, branchSHA, fmt.Sprintf("Release candidate %s", rcTag))
 	if err != nil {
 		log.Fatalf("Failed to create tag: %v", err)
 	}
 	fmt.Printf("✅ Created tag: %s\n", rcTag)
 
 	// Create draft prerelease
-	releaseURL, err := createDraftPrerelease(ctx, client, cfg.Owner, cfg.Repo, rcTag, version, rcNumber, pr.GetNumber())
+	releaseURL, err := createDraftPrerelease(ctx, client, cfg.Owner, cfg.Repo, rcTag, ver, rcNumber, pr.GetNumber())
 	if err != nil {
 		log.Fatalf("Failed to create draft prerelease: %v", err)
 	}
 	fmt.Printf("✅ Created draft prerelease: %s\n", releaseURL)
 }
 
-func parseFlags() Config {
-	var cfg Config
-
-	flag.BoolVar(&cfg.DryRun, "dry-run", false, "Dry run (do not create tag or release)")
-	flag.StringVar(&cfg.Owner, "owner", "", "GitHub repository owner")
-	flag.StringVar(&cfg.Repo, "repo", "", "GitHub repository name")
-	flag.Parse()
-
-	cfg.Token = os.Getenv("GITHUB_TOKEN")
-
-	// Try to parse from GITHUB_REPOSITORY if owner/repo not provided
-	if cfg.Owner == "" || cfg.Repo == "" {
-		if ghRepo := os.Getenv("GITHUB_REPOSITORY"); ghRepo != "" {
-			parts := strings.SplitN(ghRepo, "/", 2)
-			if len(parts) == 2 {
-				cfg.Owner = parts[0]
-				cfg.Repo = parts[1]
-			}
-		}
-	}
-
-	if cfg.Owner == "" || cfg.Repo == "" {
-		log.Fatal("Repository owner and name are required (use -owner and -repo flags, or set GITHUB_REPOSITORY)")
-	}
-
-	return cfg
-}
-
-func newGitHubClient(ctx context.Context, token string) *github.Client {
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
-	tc := oauth2.NewClient(ctx, ts)
-	return github.NewClient(tc)
-}
-
-func findReleasePleasePR(ctx context.Context, client *github.Client, owner, repo string) (*github.PullRequest, error) {
-	// Search for open PRs with the release-please label
+func findReleasePleasePR(ctx context.Context, client *github.Client, owner, repo, baseBranch string) (*github.PullRequest, error) {
 	opts := &github.PullRequestListOptions{
 		State: "open",
+		Base:  baseBranch,
 		ListOptions: github.ListOptions{
 			PerPage: 100,
 		},
@@ -141,18 +116,17 @@ func findReleasePleasePR(ctx context.Context, client *github.Client, owner, repo
 	}
 
 	// Fallback: look for PR with release-please title pattern
-	titlePattern := regexp.MustCompile(`^chore\(main\): release`)
+	titlePattern := regexp.MustCompile(fmt.Sprintf(`^chore\(%s\): release`, regexp.QuoteMeta(baseBranch)))
 	for _, pr := range prs {
 		if titlePattern.MatchString(pr.GetTitle()) {
 			return pr, nil
 		}
 	}
 
-	return nil, fmt.Errorf("no release-please PR found (looked for 'autorelease: pending' label or 'chore(main): release' title)")
+	return nil, fmt.Errorf("no release-please PR found for branch %s (looked for 'autorelease: pending' label or release-please title pattern)", baseBranch)
 }
 
 func extractVersionFromTitle(title string) (string, error) {
-	// Match "chore(main): release X.Y.Z" or similar patterns
 	pattern := regexp.MustCompile(`release\s+(\d+\.\d+\.\d+)`)
 	matches := pattern.FindStringSubmatch(title)
 	if len(matches) < 2 {
@@ -161,8 +135,7 @@ func extractVersionFromTitle(title string) (string, error) {
 	return matches[1], nil
 }
 
-func findNextRCNumber(ctx context.Context, client *github.Client, owner, repo, version string) (int, error) {
-	// List all tags
+func findNextRCNumber(ctx context.Context, client *github.Client, owner, repo, ver string) (int, error) {
 	opts := &github.ListOptions{PerPage: 100}
 	var allTags []*github.RepositoryTag
 
@@ -179,7 +152,7 @@ func findNextRCNumber(ctx context.Context, client *github.Client, owner, repo, v
 	}
 
 	// Find existing RC tags for this version
-	rcPattern := regexp.MustCompile(fmt.Sprintf(`^v%s-rc\.(\d+)$`, regexp.QuoteMeta(version)))
+	rcPattern := regexp.MustCompile(fmt.Sprintf(`^v%s-rc\.(\d+)$`, regexp.QuoteMeta(ver)))
 	var rcNumbers []int
 
 	for _, tag := range allTags {
@@ -198,39 +171,7 @@ func findNextRCNumber(ctx context.Context, client *github.Client, owner, repo, v
 	return rcNumbers[len(rcNumbers)-1] + 1, nil
 }
 
-func createTag(ctx context.Context, client *github.Client, owner, repo, tag, sha string) error {
-	// Create annotated tag object
-	tagObj := &github.Tag{
-		Tag:     github.String(tag),
-		Message: github.String(fmt.Sprintf("Release candidate %s", tag)),
-		Object: &github.GitObject{
-			Type: github.String("commit"),
-			SHA:  github.String(sha),
-		},
-	}
-
-	createdTag, _, err := client.Git.CreateTag(ctx, owner, repo, tagObj)
-	if err != nil {
-		return fmt.Errorf("creating tag object: %w", err)
-	}
-
-	// Create reference for the tag
-	ref := &github.Reference{
-		Ref: github.String("refs/tags/" + tag),
-		Object: &github.GitObject{
-			SHA: createdTag.SHA,
-		},
-	}
-
-	_, _, err = client.Git.CreateRef(ctx, owner, repo, ref)
-	if err != nil {
-		return fmt.Errorf("creating tag reference: %w", err)
-	}
-
-	return nil
-}
-
-func createDraftPrerelease(ctx context.Context, client *github.Client, owner, repo, tag, version string, rcNumber, prNumber int) (string, error) {
+func createDraftPrerelease(ctx context.Context, client *github.Client, owner, repo, tag, ver string, rcNumber, prNumber int) (string, error) {
 	body := fmt.Sprintf(`## Release Candidate %d for v%s
 
 This is a **release candidate** and should be used for testing purposes only.
@@ -244,7 +185,7 @@ See the [release PR #%d](https://github.com/%s/%s/pull/%d) for the full changelo
 ### Testing
 
 Please test this release candidate and report any issues before the final release.
-`, rcNumber, version, prNumber, owner, repo, prNumber)
+`, rcNumber, ver, prNumber, owner, repo, prNumber)
 
 	release := &github.RepositoryRelease{
 		TagName:    github.String(tag),
