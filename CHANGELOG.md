@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0-rc.0](https://github.com/jharvey10/test-repo/compare/v1.14.0...v1.15.0-rc.0) (2025-12-04)
+
+
+### Features 🌟
+
+* normal feature stuff wow ([#32](https://github.com/jharvey10/test-repo/issues/32)) ([6605e1b](https://github.com/jharvey10/test-repo/commit/6605e1b247c322a902b8d48f854c2edaef6356c0))
+
 ## [1.14.0](https://github.com/jharvey10/test-repo/compare/v1.13.4...v1.14.0) (2025-12-03)
 
 
