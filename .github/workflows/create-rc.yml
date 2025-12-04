@@ -1,0 +1,43 @@
+name: Create Release Candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (do not create tag or release)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  create-rc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate token 🔐
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Checkout repository 🛎️
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: tools/create-rc/go.mod
+          cache-dependency-path: tools/create-rc/go.sum
+
+      - name: Run create-rc tool
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          cd tools/create-rc
+          go run . ${{ inputs.dry_run == true && '--dry-run' || '' }}
