@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.15.0](https://github.com/jharvey10/test-repo/compare/v1.14.0...v1.15.0) (2025-12-04)
+
+
+### Features 🌟
+
+* normal feature stuff wow ([#32](https://github.com/jharvey10/test-repo/issues/32)) ([6605e1b](https://github.com/jharvey10/test-repo/commit/6605e1b247c322a902b8d48f854c2edaef6356c0))
+
+
+### Bug Fixes 🐛
+
+* actual change in the rc wow ([#46](https://github.com/jharvey10/test-repo/issues/46)) ([3d606cd](https://github.com/jharvey10/test-repo/commit/3d606cd9a5135639b58d07bd7f630657cdd711a6))
+* oops we needed an rc fix ([e48d81f](https://github.com/jharvey10/test-repo/commit/e48d81f311b633df5464dd9f54c74ae72a60780a))
+
 ## [1.14.0](https://github.com/jharvey10/test-repo/compare/v1.13.4...v1.14.0) (2025-12-03)
 
 
