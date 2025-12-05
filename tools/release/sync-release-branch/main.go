@@ -41,8 +41,8 @@ func main() {
 	fmt.Printf("Tag: %s\n", tag)
 	fmt.Printf("Minor version: %s\n", minorVersion)
 
-	// Use a separate sync branch for the PR to avoid auto-closing when the release branch is updated
-	// for patch releases
+	// Use a separate sync branch for the PR to avoid auto-closing when the release branch is updated.
+	// We create a single squashed commit containing the release branch's file state on top of main.
 	releaseBranch := fmt.Sprintf("release/v%s", minorVersion)
 	syncBranch := fmt.Sprintf("sync/release-v%s", minorVersion)
 	fmt.Printf("Release branch: %s\n", releaseBranch)
@@ -50,19 +50,25 @@ func main() {
 
 	exists, err := gh.BranchExists(ctx, client, cfg.Owner, cfg.Repo, releaseBranch)
 	if err != nil {
-		log.Fatalf("Failed to check if branch exists: %v", err)
+		log.Fatalf("Failed to check if release branch exists: %v", err)
 	}
 	if !exists {
 		log.Fatalf("Release branch %s does not exist", releaseBranch)
 	}
 
-	releaseBranchSHA, err := gh.GetRefSHA(ctx, client, cfg.Owner, cfg.Repo, releaseBranch)
+	mainSHA, err := gh.GetRefSHA(ctx, client, cfg.Owner, cfg.Repo, "main")
+	if err != nil {
+		log.Fatalf("Failed to get main branch SHA: %v", err)
+	}
+	fmt.Printf("Main branch SHA: %s\n", mainSHA)
+
+	releaseSHA, err := gh.GetRefSHA(ctx, client, cfg.Owner, cfg.Repo, releaseBranch)
 	if err != nil {
 		log.Fatalf("Failed to get release branch SHA: %v", err)
 	}
-	fmt.Printf("Release branch SHA: %s\n", releaseBranchSHA)
+	fmt.Printf("Release branch SHA: %s\n", releaseSHA)
 
-	if err := ensureSyncBranch(ctx, client, cfg.Owner, cfg.Repo, syncBranch, releaseBranchSHA, dryRun); err != nil {
+	if err := ensureSyncBranch(ctx, client, cfg.Owner, cfg.Repo, syncBranch, mainSHA, releaseSHA, releaseBranch, dryRun); err != nil {
 		log.Fatalf("Failed to ensure sync branch: %v", err)
 	}
 
@@ -71,33 +77,53 @@ func main() {
 	}
 }
 
-// ensureSyncBranch creates the sync branch if it doesn't exist, or updates it
-// to point to the given SHA if it does.
-func ensureSyncBranch(ctx context.Context, client *github.Client, owner, repo, syncBranch, targetSHA string, dryRun bool) error {
-	exists, err := gh.BranchExists(ctx, client, owner, repo, syncBranch)
+// ensureSyncBranch creates a sync branch with a single squashed commit containing the
+// release branch's file state on top of main. This produces a clean single-commit PR.
+func ensureSyncBranch(ctx context.Context, client *github.Client, owner, repo, syncBranch, mainSHA, releaseSHA, releaseBranch string, dryRun bool) error {
+	if dryRun {
+		fmt.Printf("🏃 DRY RUN - Would create squashed sync commit from %s on top of main\n", releaseBranch)
+		return nil
+	}
+
+	// Get the tree from the release branch (this is the file state we want)
+	releaseCommit, _, err := client.Git.GetCommit(ctx, owner, repo, releaseSHA)
+	if err != nil {
+		return fmt.Errorf("getting release commit: %w", err)
+	}
+	releaseTreeSHA := releaseCommit.GetTree().GetSHA()
+
+	// Create a new commit with the release tree but main as the parent
+	// This is effectively a squash of all release branch changes
+	commitMessage := fmt.Sprintf("chore: sync %s to main\n\nSquashed commit containing all changes from %s.", releaseBranch, releaseBranch)
+	newCommit := &github.Commit{
+		Message: github.String(commitMessage),
+		Tree:    &github.Tree{SHA: github.String(releaseTreeSHA)},
+		Parents: []*github.Commit{{SHA: github.String(mainSHA)}},
+	}
+
+	createdCommit, _, err := client.Git.CreateCommit(ctx, owner, repo, newCommit, nil)
+	if err != nil {
+		return fmt.Errorf("creating squashed commit: %w", err)
+	}
+	squashSHA := createdCommit.GetSHA()
+	fmt.Printf("✅ Created squashed commit %s\n", squashSHA[:7])
+
+	// Create or update the sync branch to point to our new commit
+	syncBranchExists, err := gh.BranchExists(ctx, client, owner, repo, syncBranch)
 	if err != nil {
 		return fmt.Errorf("checking if sync branch exists: %w", err)
 	}
 
-	if dryRun {
-		if exists {
-			fmt.Printf("🏃 DRY RUN - Would update sync branch %s to %s\n", syncBranch, targetSHA[:7])
-		} else {
-			fmt.Printf("🏃 DRY RUN - Would create sync branch %s at %s\n", syncBranch, targetSHA[:7])
-		}
-		return nil
-	}
-
-	if exists {
-		if err := updateBranchRef(ctx, client, owner, repo, syncBranch, targetSHA); err != nil {
+	if syncBranchExists {
+		if err := updateBranchRef(ctx, client, owner, repo, syncBranch, squashSHA); err != nil {
 			return fmt.Errorf("updating sync branch: %w", err)
 		}
-		fmt.Printf("✅ Updated sync branch %s to %s\n", syncBranch, targetSHA[:7])
+		fmt.Printf("✅ Updated sync branch %s\n", syncBranch)
 	} else {
-		if err := gh.CreateBranch(ctx, client, owner, repo, syncBranch, targetSHA); err != nil {
+		if err := gh.CreateBranch(ctx, client, owner, repo, syncBranch, squashSHA); err != nil {
 			return fmt.Errorf("creating sync branch: %w", err)
 		}
-		fmt.Printf("✅ Created sync branch %s at %s\n", syncBranch, targetSHA[:7])
+		fmt.Printf("✅ Created sync branch %s\n", syncBranch)
 	}
 
 	return nil
@@ -149,9 +175,9 @@ func createSyncPR(ctx context.Context, client *github.Client, owner, repo, syncB
 	title := fmt.Sprintf("chore: sync v%s release branch to main", minorVersion)
 	body := fmt.Sprintf(`## Sync Release Branch
 
-This PR merges changes from `+"`%s`"+` back into `+"`main`"+`.
+This PR syncs the file state from `+"`%s`"+` back into `+"`main`"+`.
 
-**Note:** This PR uses a dedicated sync branch (`+"`%s`"+`) to avoid auto-close issues when the release branch is updated.
+This is a squashed commit containing all changes from the release branch, so the diff shows only the net file changes.
 
 ### Review Checklist
 - [ ] Review all changes for conflicts
@@ -160,7 +186,7 @@ This PR merges changes from `+"`%s`"+` back into `+"`main`"+`.
 
 ---
 *This PR was automatically created after the v%s.x release.*
-`, releaseBranch, syncBranch, minorVersion)
+`, releaseBranch, minorVersion)
 
 	newPR := &github.NewPullRequest{
 		Title: github.String(title),
