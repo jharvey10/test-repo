@@ -3,7 +3,6 @@ package github
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,55 +14,121 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// RepoConfig holds repository configuration.
-type RepoConfig struct {
-	Owner string
-	Repo  string
-	Token string
+// Client wraps the GitHub API client with repository context.
+type Client struct {
+	api   *github.Client
+	owner string
+	repo  string
 }
 
-// NewRepoConfigFromEnv creates a RepoConfig from environment variables.
-// It reads GITHUB_TOKEN for the token and GITHUB_REPOSITORY for owner/repo.
-func NewRepoConfigFromEnv() (RepoConfig, error) {
-	cfg := RepoConfig{
-		Token: os.Getenv("GITHUB_TOKEN"),
+// ClientConfig holds configuration for creating a new Client.
+type ClientConfig struct {
+	Token string
+	Owner string
+	Repo  string
+}
+
+// AppIdentity represents a GitHub App's git identity for commits.
+type AppIdentity struct {
+	Name  string // e.g., "my-app[bot]"
+	Email string // e.g., "12345+my-app[bot]@users.noreply.github.com"
+}
+
+// CreateBranchParams holds parameters for CreateBranch.
+type CreateBranchParams struct {
+	Branch string
+	SHA    string
+}
+
+// CreateTagParams holds parameters for CreateTag.
+type CreateTagParams struct {
+	Tag     string
+	SHA     string
+	Message string
+}
+
+// CreatePRParams holds parameters for CreatePR.
+type CreatePRParams struct {
+	Title string
+	Head  string
+	Base  string
+	Body  string
+}
+
+// FindOpenPRParams holds parameters for FindOpenPR.
+type FindOpenPRParams struct {
+	Head string
+	Base string
+}
+
+// FindCommitParams holds parameters for FindCommitWithPattern and CommitExistsWithPattern.
+type FindCommitParams struct {
+	Branch  string
+	Pattern string
+}
+
+// NewClientFromEnv creates a new Client from environment variables.
+// Reads GITHUB_TOKEN and GITHUB_REPOSITORY (format: owner/repo).
+func NewClientFromEnv(ctx context.Context) (*Client, error) {
+	token := os.Getenv("GITHUB_TOKEN")
+	if token == "" {
+		return nil, fmt.Errorf("GITHUB_TOKEN environment variable is required")
 	}
 
-	if cfg.Token == "" {
-		return cfg, fmt.Errorf("GITHUB_TOKEN environment variable is required")
-	}
-
+	var owner, repo string
 	if ghRepo := os.Getenv("GITHUB_REPOSITORY"); ghRepo != "" {
 		parts := strings.SplitN(ghRepo, "/", 2)
 		if len(parts) == 2 {
-			cfg.Owner = parts[0]
-			cfg.Repo = parts[1]
+			owner = parts[0]
+			repo = parts[1]
 		}
 	}
 
-	if cfg.Owner == "" || cfg.Repo == "" {
-		return cfg, fmt.Errorf("GITHUB_REPOSITORY environment variable is required (format: owner/repo)")
+	if owner == "" || repo == "" {
+		return nil, fmt.Errorf("GITHUB_REPOSITORY environment variable is required (format: owner/repo)")
 	}
 
-	return cfg, nil
+	return NewClient(ctx, ClientConfig{
+		Token: token,
+		Owner: owner,
+		Repo:  repo,
+	}), nil
 }
 
-// NewClient creates a new GitHub client with the given token.
-func NewClient(ctx context.Context, token string) *github.Client {
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
+// NewClient creates a new Client with the given configuration.
+func NewClient(ctx context.Context, cfg ClientConfig) *Client {
+	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: cfg.Token})
 	tc := oauth2.NewClient(ctx, ts)
-	return github.NewClient(tc)
+
+	return &Client{
+		api:   github.NewClient(tc),
+		owner: cfg.Owner,
+		repo:  cfg.Repo,
+	}
+}
+
+// API returns the underlying go-github client for advanced usage.
+func (c *Client) API() *github.Client {
+	return c.api
+}
+
+// Owner returns the repository owner.
+func (c *Client) Owner() string {
+	return c.owner
+}
+
+// Repo returns the repository name.
+func (c *Client) Repo() string {
+	return c.repo
 }
 
 // BranchExists checks if a branch exists in the repository.
-func BranchExists(ctx context.Context, client *github.Client, owner, repo, branch string) (bool, error) {
-	_, resp, err := client.Repositories.GetBranch(ctx, owner, repo, branch, 0)
+func (c *Client) BranchExists(ctx context.Context, branch string) (bool, error) {
+	_, resp, err := c.api.Repositories.GetBranch(ctx, c.owner, c.repo, branch, 0)
 	if err != nil {
-		// Check response status code directly (most reliable)
 		if resp != nil && resp.StatusCode == http.StatusNotFound {
 			return false, nil
 		}
-		// Also check for ErrorResponse type
 		var errResp *github.ErrorResponse
 		if errors.As(err, &errResp) && errResp.Response.StatusCode == http.StatusNotFound {
 			return false, nil
@@ -74,21 +139,21 @@ func BranchExists(ctx context.Context, client *github.Client, owner, repo, branc
 }
 
 // GetRefSHA resolves a ref (branch, tag, or commit SHA) to its SHA.
-func GetRefSHA(ctx context.Context, client *github.Client, owner, repo, ref string) (string, error) {
+func (c *Client) GetRefSHA(ctx context.Context, ref string) (string, error) {
 	// Try as a branch first
-	branch, _, err := client.Repositories.GetBranch(ctx, owner, repo, ref, 0)
+	branch, _, err := c.api.Repositories.GetBranch(ctx, c.owner, c.repo, ref, 0)
 	if err == nil {
 		return branch.GetCommit().GetSHA(), nil
 	}
 
 	// Try as a tag
-	tagRef, _, err := client.Git.GetRef(ctx, owner, repo, "tags/"+ref)
+	tagRef, _, err := c.api.Git.GetRef(ctx, c.owner, c.repo, "tags/"+ref)
 	if err == nil {
 		return tagRef.GetObject().GetSHA(), nil
 	}
 
 	// Try as a commit SHA
-	commit, _, err := client.Git.GetCommit(ctx, owner, repo, ref)
+	commit, _, err := c.api.Git.GetCommit(ctx, c.owner, c.repo, ref)
 	if err == nil {
 		return commit.GetSHA(), nil
 	}
@@ -97,15 +162,15 @@ func GetRefSHA(ctx context.Context, client *github.Client, owner, repo, ref stri
 }
 
 // CreateBranch creates a new branch from the given SHA.
-func CreateBranch(ctx context.Context, client *github.Client, owner, repo, branch, sha string) error {
+func (c *Client) CreateBranch(ctx context.Context, p CreateBranchParams) error {
 	ref := &github.Reference{
-		Ref: github.String("refs/heads/" + branch),
+		Ref: github.String("refs/heads/" + p.Branch),
 		Object: &github.GitObject{
-			SHA: github.String(sha),
+			SHA: github.String(p.SHA),
 		},
 	}
 
-	_, _, err := client.Git.CreateRef(ctx, owner, repo, ref)
+	_, _, err := c.api.Git.CreateRef(ctx, c.owner, c.repo, ref)
 	if err != nil {
 		return fmt.Errorf("creating branch ref: %w", err)
 	}
@@ -114,29 +179,29 @@ func CreateBranch(ctx context.Context, client *github.Client, owner, repo, branc
 }
 
 // CreateTag creates an annotated tag.
-func CreateTag(ctx context.Context, client *github.Client, owner, repo, tag, sha, message string) error {
+func (c *Client) CreateTag(ctx context.Context, p CreateTagParams) error {
 	tagObj := &github.Tag{
-		Tag:     github.String(tag),
-		Message: github.String(message),
+		Tag:     github.String(p.Tag),
+		Message: github.String(p.Message),
 		Object: &github.GitObject{
 			Type: github.String("commit"),
-			SHA:  github.String(sha),
+			SHA:  github.String(p.SHA),
 		},
 	}
 
-	createdTag, _, err := client.Git.CreateTag(ctx, owner, repo, tagObj)
+	createdTag, _, err := c.api.Git.CreateTag(ctx, c.owner, c.repo, tagObj)
 	if err != nil {
 		return fmt.Errorf("creating tag object: %w", err)
 	}
 
 	ref := &github.Reference{
-		Ref: github.String("refs/tags/" + tag),
+		Ref: github.String("refs/tags/" + p.Tag),
 		Object: &github.GitObject{
 			SHA: createdTag.SHA,
 		},
 	}
 
-	_, _, err = client.Git.CreateRef(ctx, owner, repo, ref)
+	_, _, err = c.api.Git.CreateRef(ctx, c.owner, c.repo, ref)
 	if err != nil {
 		return fmt.Errorf("creating tag reference: %w", err)
 	}
@@ -145,9 +210,9 @@ func CreateTag(ctx context.Context, client *github.Client, owner, repo, tag, sha
 }
 
 // ReadManifest reads the release-please manifest from the repository.
-func ReadManifest(ctx context.Context, client *github.Client, owner, repo, ref string) (map[string]string, error) {
-	fileContent, _, _, err := client.Repositories.GetContents(
-		ctx, owner, repo,
+func (c *Client) ReadManifest(ctx context.Context, ref string) (map[string]string, error) {
+	fileContent, _, _, err := c.api.Repositories.GetContents(
+		ctx, c.owner, c.repo,
 		".release-please-manifest.json",
 		&github.RepositoryContentGetOptions{Ref: ref},
 	)
@@ -155,31 +220,63 @@ func ReadManifest(ctx context.Context, client *github.Client, owner, repo, ref s
 		return nil, fmt.Errorf("getting manifest file: %w", err)
 	}
 
-	content, err := base64.StdEncoding.DecodeString(*fileContent.Content)
+	content, err := fileContent.GetContent()
 	if err != nil {
 		return nil, fmt.Errorf("decoding manifest content: %w", err)
 	}
 
 	var manifest map[string]string
-	if err := json.Unmarshal(content, &manifest); err != nil {
+	if err := json.Unmarshal([]byte(content), &manifest); err != nil {
 		return nil, fmt.Errorf("parsing manifest JSON: %w", err)
 	}
 
 	return manifest, nil
 }
 
+// GetAppIdentity returns the GitHub App's identity for use in git commits.
+// It checks for APP_SLUG environment variable and fetches the app ID from the public API.
+// Falls back to the authenticated Apps API if APP_SLUG is not set (requires JWT authentication).
+func (c *Client) GetAppIdentity(ctx context.Context) (AppIdentity, error) {
+	// Prefer APP_SLUG env var - fetch ID from public API (works with installation tokens)
+	appSlug := os.Getenv("APP_SLUG")
+	if appSlug != "" {
+		app, _, err := c.api.Apps.Get(ctx, appSlug)
+		if err != nil {
+			return AppIdentity{}, fmt.Errorf("getting app info for slug %q: %w", appSlug, err)
+		}
+		return AppIdentity{
+			Name:  fmt.Sprintf("%s[bot]", appSlug),
+			Email: fmt.Sprintf("%d+%s[bot]@users.noreply.github.com", app.GetID(), appSlug),
+		}, nil
+	}
+
+	// Fall back to API call (requires JWT authentication, not installation token)
+	app, _, err := c.api.Apps.Get(ctx, "")
+	if err != nil {
+		return AppIdentity{}, fmt.Errorf("getting app info: %w (hint: set APP_SLUG env var when using installation tokens)", err)
+	}
+
+	slug := app.GetSlug()
+	id := app.GetID()
+
+	return AppIdentity{
+		Name:  fmt.Sprintf("%s[bot]", slug),
+		Email: fmt.Sprintf("%d+%s[bot]@users.noreply.github.com", id, slug),
+	}, nil
+}
+
 // FindOpenPR finds an open PR with the given head and base branches.
-func FindOpenPR(ctx context.Context, client *github.Client, owner, repo, head, base string) (*github.PullRequest, error) {
+func (c *Client) FindOpenPR(ctx context.Context, p FindOpenPRParams) (*github.PullRequest, error) {
 	opts := &github.PullRequestListOptions{
 		State: "open",
-		Head:  fmt.Sprintf("%s:%s", owner, head),
-		Base:  base,
+		Head:  fmt.Sprintf("%s:%s", c.owner, p.Head),
+		Base:  p.Base,
 		ListOptions: github.ListOptions{
 			PerPage: 10,
 		},
 	}
 
-	prs, _, err := client.PullRequests.List(ctx, owner, repo, opts)
+	prs, _, err := c.api.PullRequests.List(ctx, c.owner, c.repo, opts)
 	if err != nil {
 		return nil, fmt.Errorf("listing pull requests: %w", err)
 	}
@@ -188,4 +285,76 @@ func FindOpenPR(ctx context.Context, client *github.Client, owner, repo, head, b
 		return prs[0], nil
 	}
 	return nil, nil
+}
+
+// GetPR fetches a pull request by number.
+func (c *Client) GetPR(ctx context.Context, number int) (*github.PullRequest, error) {
+	pr, _, err := c.api.PullRequests.Get(ctx, c.owner, c.repo, number)
+	if err != nil {
+		return nil, fmt.Errorf("getting PR #%d: %w", number, err)
+	}
+	return pr, nil
+}
+
+// CreatePR creates a new pull request.
+func (c *Client) CreatePR(ctx context.Context, p CreatePRParams) (*github.PullRequest, error) {
+	newPR := &github.NewPullRequest{
+		Title: github.String(p.Title),
+		Head:  github.String(p.Head),
+		Base:  github.String(p.Base),
+		Body:  github.String(p.Body),
+	}
+
+	pr, _, err := c.api.PullRequests.Create(ctx, c.owner, c.repo, newPR)
+	if err != nil {
+		return nil, fmt.Errorf("creating pull request: %w", err)
+	}
+
+	return pr, nil
+}
+
+// FindCommitWithPattern searches the commit history of a branch for a commit whose title contains the pattern.
+// Returns the commit SHA if found, or an error if not found.
+func (c *Client) FindCommitWithPattern(ctx context.Context, p FindCommitParams) (string, error) {
+	opts := &github.CommitsListOptions{
+		SHA: p.Branch,
+		ListOptions: github.ListOptions{
+			PerPage: 100,
+		},
+	}
+
+	// Search through recent commits (up to 500)
+	for range 5 {
+		commits, resp, err := c.api.Repositories.ListCommits(ctx, c.owner, c.repo, opts)
+		if err != nil {
+			return "", fmt.Errorf("listing commits: %w", err)
+		}
+
+		for _, commit := range commits {
+			message := commit.GetCommit().GetMessage()
+			title := strings.Split(message, "\n")[0]
+			if strings.Contains(title, p.Pattern) {
+				return commit.GetSHA(), nil
+			}
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Page = resp.NextPage
+	}
+
+	return "", fmt.Errorf("no commit found with pattern %q in branch %s", p.Pattern, p.Branch)
+}
+
+// CommitExistsWithPattern checks if any commit in the branch history contains the pattern in its title.
+func (c *Client) CommitExistsWithPattern(ctx context.Context, p FindCommitParams) (bool, error) {
+	_, err := c.FindCommitWithPattern(ctx, p)
+	if err != nil {
+		if strings.Contains(err.Error(), "no commit found") {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }

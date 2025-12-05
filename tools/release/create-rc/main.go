@@ -32,16 +32,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	cfg, err := gh.NewRepoConfigFromEnv()
+	ctx := context.Background()
+
+	client, err := gh.NewClientFromEnv(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	ctx := context.Background()
-	client := gh.NewClient(ctx, cfg.Token)
-
 	// Find the release-please PR for the specified branch
-	pr, err := findReleasePleasePR(ctx, client, cfg.Owner, cfg.Repo, releaseBranch)
+	pr, err := findReleasePleasePR(ctx, client, releaseBranch)
 	if err != nil {
 		log.Fatalf("Failed to find release-please PR: %v", err)
 	}
@@ -58,7 +57,7 @@ func main() {
 	fmt.Printf("Target version: %s\n", ver)
 
 	// Find existing RC tags and determine next RC number
-	rcNumber, err := findNextRCNumber(ctx, client, cfg.Owner, cfg.Repo, ver)
+	rcNumber, err := findNextRCNumber(ctx, client, ver)
 	if err != nil {
 		log.Fatalf("Failed to determine next RC number: %v", err)
 	}
@@ -78,21 +77,25 @@ func main() {
 	fmt.Printf("Branch HEAD SHA: %s\n", branchSHA)
 
 	// Create the tag
-	err = gh.CreateTag(ctx, client, cfg.Owner, cfg.Repo, rcTag, branchSHA, fmt.Sprintf("Release candidate %s", rcTag))
+	err = client.CreateTag(ctx, gh.CreateTagParams{
+		Tag:     rcTag,
+		SHA:     branchSHA,
+		Message: fmt.Sprintf("Release candidate %s", rcTag),
+	})
 	if err != nil {
 		log.Fatalf("Failed to create tag: %v", err)
 	}
 	fmt.Printf("✅ Created tag: %s\n", rcTag)
 
 	// Create draft prerelease
-	releaseURL, err := createDraftPrerelease(ctx, client, cfg.Owner, cfg.Repo, rcTag, ver, rcNumber, pr.GetNumber())
+	releaseURL, err := createDraftPrerelease(ctx, client, rcTag, ver, rcNumber, pr.GetNumber())
 	if err != nil {
 		log.Fatalf("Failed to create draft prerelease: %v", err)
 	}
 	fmt.Printf("✅ Created draft prerelease: %s\n", releaseURL)
 }
 
-func findReleasePleasePR(ctx context.Context, client *github.Client, owner, repo, baseBranch string) (*github.PullRequest, error) {
+func findReleasePleasePR(ctx context.Context, client *gh.Client, baseBranch string) (*github.PullRequest, error) {
 	opts := &github.PullRequestListOptions{
 		State: "open",
 		Base:  baseBranch,
@@ -101,7 +104,7 @@ func findReleasePleasePR(ctx context.Context, client *github.Client, owner, repo
 		},
 	}
 
-	prs, _, err := client.PullRequests.List(ctx, owner, repo, opts)
+	prs, _, err := client.API().PullRequests.List(ctx, client.Owner(), client.Repo(), opts)
 	if err != nil {
 		return nil, fmt.Errorf("listing pull requests: %w", err)
 	}
@@ -135,12 +138,12 @@ func extractVersionFromTitle(title string) (string, error) {
 	return matches[1], nil
 }
 
-func findNextRCNumber(ctx context.Context, client *github.Client, owner, repo, ver string) (int, error) {
+func findNextRCNumber(ctx context.Context, client *gh.Client, ver string) (int, error) {
 	opts := &github.ListOptions{PerPage: 100}
 	var allTags []*github.RepositoryTag
 
 	for {
-		tags, resp, err := client.Repositories.ListTags(ctx, owner, repo, opts)
+		tags, resp, err := client.API().Repositories.ListTags(ctx, client.Owner(), client.Repo(), opts)
 		if err != nil {
 			return 0, fmt.Errorf("listing tags: %w", err)
 		}
@@ -171,7 +174,7 @@ func findNextRCNumber(ctx context.Context, client *github.Client, owner, repo, v
 	return rcNumbers[len(rcNumbers)-1] + 1, nil
 }
 
-func createDraftPrerelease(ctx context.Context, client *github.Client, owner, repo, tag, ver string, rcNumber, prNumber int) (string, error) {
+func createDraftPrerelease(ctx context.Context, client *gh.Client, tag, ver string, rcNumber, prNumber int) (string, error) {
 	body := fmt.Sprintf(`## Release Candidate %d for v%s
 
 This is a **release candidate** and should be used for testing purposes only.
@@ -185,7 +188,7 @@ See the [release PR #%d](https://github.com/%s/%s/pull/%d) for the full changelo
 ### Testing
 
 Please test this release candidate and report any issues before the final release.
-`, rcNumber, ver, prNumber, owner, repo, prNumber)
+`, rcNumber, ver, prNumber, client.Owner(), client.Repo(), prNumber)
 
 	release := &github.RepositoryRelease{
 		TagName:    github.String(tag),
@@ -195,7 +198,7 @@ Please test this release candidate and report any issues before the final releas
 		Prerelease: github.Bool(true),
 	}
 
-	created, _, err := client.Repositories.CreateRelease(ctx, owner, repo, release)
+	created, _, err := client.API().Repositories.CreateRelease(ctx, client.Owner(), client.Repo(), release)
 	if err != nil {
 		return "", fmt.Errorf("creating release: %w", err)
 	}
