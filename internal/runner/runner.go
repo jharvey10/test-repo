@@ -43,6 +43,6 @@ func (r *Runner) Run() error {
 		return fmt.Errorf("component failed: %w", err)
 	}
 
-	fmt.Println("All components completed successfully 🎉")
+	fmt.Println("All components completed successfully")
 	return nil
 }

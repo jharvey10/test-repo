@@ -106,11 +106,6 @@ func main() {
 		return
 	}
 
-	// Configure git for the cherry-pick
-	if err := configureGit(); err != nil {
-		log.Fatalf("Failed to configure git: %v", err)
-	}
-
 	// Fetch the target branch
 	if err := gitFetch(targetBranch); err != nil {
 		log.Fatalf("Failed to fetch target branch: %v", err)
@@ -186,23 +181,6 @@ func findCommitWithPattern(ctx context.Context, client *github.Client, owner, re
 	}
 
 	return "", fmt.Errorf("no commit found with pattern %q in branch %s", pattern, branch)
-}
-
-func configureGit() error {
-	cmds := [][]string{
-		{"git", "config", "user.name", "github-actions[bot]"},
-		{"git", "config", "user.email", "github-actions[bot]@users.noreply.github.com"},
-	}
-
-	for _, args := range cmds {
-		cmd := exec.Command(args[0], args[1:]...)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
-			return fmt.Errorf("running %v: %w", args, err)
-		}
-	}
-	return nil
 }
 
 func gitFetch(branch string) error {
