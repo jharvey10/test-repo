@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.2](https://github.com/jharvey10/test-repo/compare/v1.15.1...v1.15.2) (2025-12-05)
+
+
+### Bug Fixes 🐛
+
+* component doc thing ([#78](https://github.com/jharvey10/test-repo/issues/78)) ([56d48e1](https://github.com/jharvey10/test-repo/commit/56d48e18a25cf5985d0e5a9b4ab3a556fb7f8c1e))
+
 ## [1.15.1](https://github.com/jharvey10/test-repo/compare/v1.15.0...v1.15.1) (2025-12-05)
 
 
