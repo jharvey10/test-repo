@@ -19,7 +19,7 @@ type Registration struct {
 // registry holds all registered components.
 var registry = make(map[string]Registration)
 
-// Register adds a component to the registry.
+// Register adds an individual component to the registry.
 func Register(reg Registration) {
 	registry[reg.Name] = reg
 }
