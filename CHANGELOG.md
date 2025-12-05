@@ -1,5 +1,41 @@
 # Changelog
 
+## [1.14.0](https://github.com/jharvey10/test-repo/compare/v1.15.3...v1.14.0) (2025-12-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* here is the extended reason for why this is a breaking change.
+
+### Features 🌟
+
+* adjusting a thing ([ae0367a](https://github.com/jharvey10/test-repo/commit/ae0367a828879c730301c02cb74b8bbfd13f47c6))
+* do something cool with the alloy command ([#88](https://github.com/jharvey10/test-repo/issues/88)) ([a9892f3](https://github.com/jharvey10/test-repo/commit/a9892f33ce65c73c08fc11785ae287660121160a))
+* normal feature stuff wow ([#32](https://github.com/jharvey10/test-repo/issues/32)) ([6605e1b](https://github.com/jharvey10/test-repo/commit/6605e1b247c322a902b8d48f854c2edaef6356c0))
+* try out helm stuff ([#25](https://github.com/jharvey10/test-repo/issues/25)) ([5a6f6ac](https://github.com/jharvey10/test-repo/commit/5a6f6ac7aa0130e48840018b1921a741ed93e1ef))
+* update the wowfile ([#3](https://github.com/jharvey10/test-repo/issues/3)) ([31e73fc](https://github.com/jharvey10/test-repo/commit/31e73fcd3d5db9435e4f05c45998a371e231f9de))
+
+
+### Bug Fixes 🐛
+
+* actual change in the rc wow ([#46](https://github.com/jharvey10/test-repo/issues/46)) ([3d606cd](https://github.com/jharvey10/test-repo/commit/3d606cd9a5135639b58d07bd7f630657cdd711a6))
+* add emoji where we need it ([#71](https://github.com/jharvey10/test-repo/issues/71)) ([57a1e6a](https://github.com/jharvey10/test-repo/commit/57a1e6a88cdcebd1296653283156b3044f7c599c))
+* add note about cherry picking a change before release ([#55](https://github.com/jharvey10/test-repo/issues/55)) ([1f89044](https://github.com/jharvey10/test-repo/commit/1f89044798cdb6e1a9241e7f1eabd735be428e0c))
+* adjust alloy startup message ([#10](https://github.com/jharvey10/test-repo/issues/10)) ([96a3130](https://github.com/jharvey10/test-repo/commit/96a31303135527fbd5fd6464def38b98b646a8f4))
+* adjust release please workflows and release enrichment ([#14](https://github.com/jharvey10/test-repo/issues/14)) ([d6cf31c](https://github.com/jharvey10/test-repo/commit/d6cf31c60f26e80064c4b061b234c4de631074da))
+* adjust wowfile ([#89](https://github.com/jharvey10/test-repo/issues/89)) ([bd55bb7](https://github.com/jharvey10/test-repo/commit/bd55bb7c46c9d5edf8ae06753e164ea6ec911347))
+* broken enrichment workflow ([#16](https://github.com/jharvey10/test-repo/issues/16)) ([8299b62](https://github.com/jharvey10/test-repo/commit/8299b62cb3527d551729c836a64701fd0be0bd07))
+* component doc thing ([#78](https://github.com/jharvey10/test-repo/issues/78)) ([79120c4](https://github.com/jharvey10/test-repo/commit/79120c473a4fa103a5f321e95e3c9b4e3911b704))
+* more broken enrichment stuff ([#18](https://github.com/jharvey10/test-repo/issues/18)) ([f01d555](https://github.com/jharvey10/test-repo/commit/f01d5554bb590fd9c73362e921ee389b829d8da5))
+* oops we needed an rc fix ([e48d81f](https://github.com/jharvey10/test-repo/commit/e48d81f311b633df5464dd9f54c74ae72a60780a))
+* **prometheus:** improve docs ([#84](https://github.com/jharvey10/test-repo/issues/84)) ([85cacc9](https://github.com/jharvey10/test-repo/commit/85cacc91bdf0ff0bd569d19a9f88c95ca06391ca))
+* trying out release enrichment ([#11](https://github.com/jharvey10/test-repo/issues/11)) ([e8124ab](https://github.com/jharvey10/test-repo/commit/e8124abb8a3927574459dc7a55b97a837a374aa3))
+
+
+### Chores
+
+* release 1.14.0 ([#22](https://github.com/jharvey10/test-repo/issues/22)) ([0bb8f94](https://github.com/jharvey10/test-repo/commit/0bb8f94942c6940c7d859edfa83c8cc376ef6e7c))
+
 ## [1.15.3](https://github.com/jharvey10/test-repo/compare/v1.15.2...v1.15.3) (2025-12-05)
 
 
