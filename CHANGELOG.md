@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.1](https://github.com/jharvey10/test-repo/compare/v1.15.0...v1.15.1) (2025-12-05)
+
+
+### Bug Fixes 🐛
+
+* add note for version 1.5.1 in wowfile.txt ([#58](https://github.com/jharvey10/test-repo/issues/58)) ([8c4c158](https://github.com/jharvey10/test-repo/commit/8c4c1580ea12d7a6e44db99be372524ea4cce7a6))
+
 ## [1.15.0](https://github.com/jharvey10/test-repo/compare/v1.14.0...v1.15.0) (2025-12-05)
 
 
