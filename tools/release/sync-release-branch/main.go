@@ -72,7 +72,7 @@ func main() {
 		log.Fatalf("Failed to ensure sync branch: %v", err)
 	}
 
-	if err := ensureSyncPR(ctx, client, cfg.Owner, cfg.Repo, syncBranch, releaseBranch, minorVersion, dryRun); err != nil {
+	if err := ensureSyncPR(ctx, client, cfg.Owner, cfg.Repo, syncBranch, releaseBranch, minorVersion, tag, dryRun); err != nil {
 		log.Fatalf("Failed to ensure sync PR: %v", err)
 	}
 }
@@ -146,7 +146,7 @@ func updateBranchRef(ctx context.Context, client *github.Client, owner, repo, br
 }
 
 // ensureSyncPR creates a sync PR if one doesn't already exist.
-func ensureSyncPR(ctx context.Context, client *github.Client, owner, repo, syncBranch, releaseBranch, minorVersion string, dryRun bool) error {
+func ensureSyncPR(ctx context.Context, client *github.Client, owner, repo, syncBranch, releaseBranch, minorVersion, tag string, dryRun bool) error {
 	existingPR, err := gh.FindOpenPR(ctx, client, owner, repo, syncBranch, "main")
 	if err != nil {
 		return fmt.Errorf("checking for existing PR: %w", err)
@@ -162,7 +162,7 @@ func ensureSyncPR(ctx context.Context, client *github.Client, owner, repo, syncB
 		return nil
 	}
 
-	pr, err := createSyncPR(ctx, client, owner, repo, syncBranch, releaseBranch, minorVersion)
+	pr, err := createSyncPR(ctx, client, owner, repo, syncBranch, releaseBranch, minorVersion, tag)
 	if err != nil {
 		return fmt.Errorf("creating sync PR: %w", err)
 	}
@@ -171,7 +171,7 @@ func ensureSyncPR(ctx context.Context, client *github.Client, owner, repo, syncB
 	return nil
 }
 
-func createSyncPR(ctx context.Context, client *github.Client, owner, repo, syncBranch, releaseBranch, minorVersion string) (*github.PullRequest, error) {
+func createSyncPR(ctx context.Context, client *github.Client, owner, repo, syncBranch, releaseBranch, minorVersion, tag string) (*github.PullRequest, error) {
 	title := fmt.Sprintf("chore: sync v%s release branch to main", minorVersion)
 	body := fmt.Sprintf(`## Sync Release Branch
 
@@ -185,8 +185,8 @@ This is a squashed commit containing all changes from the release branch, so the
 - [ ] Verify CI passes
 
 ---
-*This PR was automatically created after the v%s.x release.*
-`, releaseBranch, minorVersion)
+*This PR was automatically created after the %s release.*
+`, releaseBranch, tag)
 
 	newPR := &github.NewPullRequest{
 		Title: github.String(title),
