@@ -19,7 +19,7 @@ type Scraper struct {
 	targets []string
 }
 
-// New creates a new Prometheus scraper.
+// New creates a new Prometheus scraper. Oh hi.
 func New() *Scraper {
 	return &Scraper{
 		targets: make([]string, 0),
