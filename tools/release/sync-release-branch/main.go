@@ -41,10 +41,13 @@ func main() {
 	fmt.Printf("Tag: %s\n", tag)
 	fmt.Printf("Minor version: %s\n", minorVersion)
 
+	// Use a separate sync branch for the PR to avoid auto-closing when the release branch is updated
+	// for patch releases
 	releaseBranch := fmt.Sprintf("release/v%s", minorVersion)
+	syncBranch := fmt.Sprintf("sync/release-v%s", minorVersion)
 	fmt.Printf("Release branch: %s\n", releaseBranch)
+	fmt.Printf("Sync branch: %s\n", syncBranch)
 
-	// Check if branch exists
 	exists, err := gh.BranchExists(ctx, client, cfg.Owner, cfg.Repo, releaseBranch)
 	if err != nil {
 		log.Fatalf("Failed to check if branch exists: %v", err)
@@ -53,36 +56,102 @@ func main() {
 		log.Fatalf("Release branch %s does not exist", releaseBranch)
 	}
 
-	// Check for existing sync PR
-	existingPR, err := gh.FindOpenPR(ctx, client, cfg.Owner, cfg.Repo, releaseBranch, "main")
+	releaseBranchSHA, err := gh.GetRefSHA(ctx, client, cfg.Owner, cfg.Repo, releaseBranch)
 	if err != nil {
-		log.Fatalf("Failed to check for existing PR: %v", err)
+		log.Fatalf("Failed to get release branch SHA: %v", err)
 	}
-	if existingPR != nil {
-		fmt.Printf("ℹ️  Sync PR already exists: %s\n", existingPR.GetHTMLURL())
-		return
+	fmt.Printf("Release branch SHA: %s\n", releaseBranchSHA)
+
+	if err := ensureSyncBranch(ctx, client, cfg.Owner, cfg.Repo, syncBranch, releaseBranchSHA, dryRun); err != nil {
+		log.Fatalf("Failed to ensure sync branch: %v", err)
+	}
+
+	if err := ensureSyncPR(ctx, client, cfg.Owner, cfg.Repo, syncBranch, releaseBranch, minorVersion, dryRun); err != nil {
+		log.Fatalf("Failed to ensure sync PR: %v", err)
+	}
+}
+
+// ensureSyncBranch creates the sync branch if it doesn't exist, or updates it
+// to point to the given SHA if it does.
+func ensureSyncBranch(ctx context.Context, client *github.Client, owner, repo, syncBranch, targetSHA string, dryRun bool) error {
+	exists, err := gh.BranchExists(ctx, client, owner, repo, syncBranch)
+	if err != nil {
+		return fmt.Errorf("checking if sync branch exists: %w", err)
 	}
 
 	if dryRun {
-		fmt.Println("\n🏃 DRY RUN - No changes made")
-		fmt.Printf("Would create sync PR: %s → main\n", releaseBranch)
-		return
+		if exists {
+			fmt.Printf("🏃 DRY RUN - Would update sync branch %s to %s\n", syncBranch, targetSHA[:7])
+		} else {
+			fmt.Printf("🏃 DRY RUN - Would create sync branch %s at %s\n", syncBranch, targetSHA[:7])
+		}
+		return nil
 	}
 
-	// Create sync PR
-	pr, err := createSyncPR(ctx, client, cfg.Owner, cfg.Repo, releaseBranch, minorVersion)
+	if exists {
+		if err := updateBranchRef(ctx, client, owner, repo, syncBranch, targetSHA); err != nil {
+			return fmt.Errorf("updating sync branch: %w", err)
+		}
+		fmt.Printf("✅ Updated sync branch %s to %s\n", syncBranch, targetSHA[:7])
+	} else {
+		if err := gh.CreateBranch(ctx, client, owner, repo, syncBranch, targetSHA); err != nil {
+			return fmt.Errorf("creating sync branch: %w", err)
+		}
+		fmt.Printf("✅ Created sync branch %s at %s\n", syncBranch, targetSHA[:7])
+	}
+
+	return nil
+}
+
+// updateBranchRef force-updates a branch to point to a new SHA.
+func updateBranchRef(ctx context.Context, client *github.Client, owner, repo, branch, sha string) error {
+	ref := &github.Reference{
+		Ref: github.String("refs/heads/" + branch),
+		Object: &github.GitObject{
+			SHA: github.String(sha),
+		},
+	}
+
+	_, _, err := client.Git.UpdateRef(ctx, owner, repo, ref, true) // force update
 	if err != nil {
-		log.Fatalf("Failed to create sync PR: %v", err)
+		return fmt.Errorf("updating branch ref: %w", err)
+	}
+	return nil
+}
+
+// ensureSyncPR creates a sync PR if one doesn't already exist.
+func ensureSyncPR(ctx context.Context, client *github.Client, owner, repo, syncBranch, releaseBranch, minorVersion string, dryRun bool) error {
+	existingPR, err := gh.FindOpenPR(ctx, client, owner, repo, syncBranch, "main")
+	if err != nil {
+		return fmt.Errorf("checking for existing PR: %w", err)
+	}
+
+	if existingPR != nil {
+		fmt.Printf("ℹ️  Sync PR already exists: %s\n", existingPR.GetHTMLURL())
+		return nil
+	}
+
+	if dryRun {
+		fmt.Printf("🏃 DRY RUN - Would create sync PR: %s → main\n", syncBranch)
+		return nil
+	}
+
+	pr, err := createSyncPR(ctx, client, owner, repo, syncBranch, releaseBranch, minorVersion)
+	if err != nil {
+		return fmt.Errorf("creating sync PR: %w", err)
 	}
 
 	fmt.Printf("✅ Created sync PR: %s\n", pr.GetHTMLURL())
+	return nil
 }
 
-func createSyncPR(ctx context.Context, client *github.Client, owner, repo, releaseBranch, minorVersion string) (*github.PullRequest, error) {
+func createSyncPR(ctx context.Context, client *github.Client, owner, repo, syncBranch, releaseBranch, minorVersion string) (*github.PullRequest, error) {
 	title := fmt.Sprintf("chore: sync v%s release branch to main", minorVersion)
 	body := fmt.Sprintf(`## Sync Release Branch
 
 This PR merges changes from `+"`%s`"+` back into `+"`main`"+`.
+
+**Note:** This PR uses a dedicated sync branch (`+"`%s`"+`) to avoid auto-close issues when the release branch is updated.
 
 ### Review Checklist
 - [ ] Review all changes for conflicts
@@ -91,11 +160,11 @@ This PR merges changes from `+"`%s`"+` back into `+"`main`"+`.
 
 ---
 *This PR was automatically created after the v%s.x release.*
-`, releaseBranch, minorVersion)
+`, releaseBranch, syncBranch, minorVersion)
 
 	newPR := &github.NewPullRequest{
 		Title: github.String(title),
-		Head:  github.String(releaseBranch),
+		Head:  github.String(syncBranch),
 		Base:  github.String("main"),
 		Body:  github.String(body),
 	}
