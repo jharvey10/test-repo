@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.3](https://github.com/jharvey10/test-repo/compare/v1.15.2...v1.15.3) (2025-12-05)
+
+
+### Bug Fixes 🐛
+
+* **prometheus:** improve docs ([#84](https://github.com/jharvey10/test-repo/issues/84)) ([3301e58](https://github.com/jharvey10/test-repo/commit/3301e5854acfbf6cb7230df03db71fd3eeaca40b))
+
 ## [1.15.2](https://github.com/jharvey10/test-repo/compare/v1.15.1...v1.15.2) (2025-12-05)
 
 
