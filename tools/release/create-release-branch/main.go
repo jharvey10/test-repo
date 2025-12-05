@@ -19,16 +19,15 @@ func main() {
 	flag.StringVar(&sourceRef, "source", "main", "Source ref to branch from")
 	flag.Parse()
 
-	cfg, err := gh.NewRepoConfigFromEnv()
+	ctx := context.Background()
+
+	client, err := gh.NewClientFromEnv(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	ctx := context.Background()
-	client := gh.NewClient(ctx, cfg.Token)
-
 	// Read manifest to determine current version
-	manifest, err := gh.ReadManifest(ctx, client, cfg.Owner, cfg.Repo, sourceRef)
+	manifest, err := client.ReadManifest(ctx, sourceRef)
 	if err != nil {
 		log.Fatalf("Failed to read manifest: %v", err)
 	}
@@ -50,7 +49,7 @@ func main() {
 	fmt.Printf("Release branch: %s\n", branchName)
 
 	// Check if branch already exists
-	exists, err := gh.BranchExists(ctx, client, cfg.Owner, cfg.Repo, branchName)
+	exists, err := client.BranchExists(ctx, branchName)
 	if err != nil {
 		log.Fatalf("Failed to check if branch exists: %v", err)
 	}
@@ -66,18 +65,21 @@ func main() {
 	}
 
 	// Get the SHA of the source ref
-	sourceSHA, err := gh.GetRefSHA(ctx, client, cfg.Owner, cfg.Repo, sourceRef)
+	sourceSHA, err := client.GetRefSHA(ctx, sourceRef)
 	if err != nil {
 		log.Fatalf("Failed to get SHA for %s: %v", sourceRef, err)
 	}
 	fmt.Printf("Source SHA: %s\n", sourceSHA)
 
 	// Create the branch
-	err = gh.CreateBranch(ctx, client, cfg.Owner, cfg.Repo, branchName, sourceSHA)
+	err = client.CreateBranch(ctx, gh.CreateBranchParams{
+		Branch: branchName,
+		SHA:    sourceSHA,
+	})
 	if err != nil {
 		log.Fatalf("Failed to create branch: %v", err)
 	}
 
 	fmt.Printf("✅ Created branch: %s\n", branchName)
-	fmt.Printf("🔗 https://github.com/%s/%s/tree/%s\n", cfg.Owner, cfg.Repo, branchName)
+	fmt.Printf("🔗 https://github.com/%s/%s/tree/%s\n", client.Owner(), client.Repo(), branchName)
 }
