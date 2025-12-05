@@ -43,7 +43,7 @@ func main() {
 
 	targetBranch := fmt.Sprintf("release/%s", version)
 	backportBranch := fmt.Sprintf("backport/pr-%d-to-%s", prNumber, version)
-	backportMarker := fmt.Sprintf("[backport #%d]", prNumber)
+	backportMarker := fmt.Sprintf("chore: backport #%d", prNumber)
 
 	fmt.Printf("🍒 Backporting PR #%d to %s\n", prNumber, targetBranch)
 
@@ -104,11 +104,6 @@ func main() {
 		fmt.Printf("Would cherry-pick commit: %s\n", commitSHA)
 		fmt.Printf("Would create PR: %s → %s\n", backportBranch, targetBranch)
 		return
-	}
-
-	// Configure git for the cherry-pick
-	if err := configureGit(); err != nil {
-		log.Fatalf("Failed to configure git: %v", err)
 	}
 
 	// Fetch the target branch
@@ -188,23 +183,6 @@ func findCommitWithPattern(ctx context.Context, client *github.Client, owner, re
 	return "", fmt.Errorf("no commit found with pattern %q in branch %s", pattern, branch)
 }
 
-func configureGit() error {
-	cmds := [][]string{
-		{"git", "config", "user.name", "github-actions[bot]"},
-		{"git", "config", "user.email", "github-actions[bot]@users.noreply.github.com"},
-	}
-
-	for _, args := range cmds {
-		cmd := exec.Command(args[0], args[1:]...)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
-			return fmt.Errorf("running %v: %w", args, err)
-		}
-	}
-	return nil
-}
-
 func gitFetch(branch string) error {
 	cmd := exec.Command("git", "fetch", "origin", branch)
 	cmd.Stdout = os.Stdout
@@ -246,8 +224,7 @@ func gitPush(branch string) error {
 }
 
 func createBackportPR(ctx context.Context, client *github.Client, owner, repo string, originalPR *github.PullRequest, backportBranch, targetBranch, backportMarker string) (*github.PullRequest, error) {
-	// Title matches original PR with backport marker suffix
-	title := fmt.Sprintf("%s %s", originalPR.GetTitle(), backportMarker)
+	title := backportMarker
 
 	body := fmt.Sprintf(`## Backport of #%d
 
