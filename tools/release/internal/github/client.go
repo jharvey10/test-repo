@@ -358,3 +358,16 @@ func (c *Client) CommitExistsWithPattern(ctx context.Context, p FindCommitParams
 	}
 	return true, nil
 }
+
+// IsBranchMergedInto checks if the source branch is fully merged into the target branch.
+// Returns true if target contains all commits from source (i.e., source is behind or equal to target).
+func (c *Client) IsBranchMergedInto(ctx context.Context, source, target string) (bool, error) {
+	comparison, _, err := c.api.Repositories.CompareCommits(ctx, c.owner, c.repo, target, source, nil)
+	if err != nil {
+		return false, fmt.Errorf("comparing branches: %w", err)
+	}
+
+	// If source is "behind" or "identical" to target, it means target already has all of source's commits
+	status := comparison.GetStatus()
+	return status == "behind" || status == "identical", nil
+}

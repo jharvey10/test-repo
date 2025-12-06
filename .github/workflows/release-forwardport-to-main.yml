@@ -1,4 +1,4 @@
-name: Sync Release-Please PR to Main
+name: Forwardport Release Branch to Main
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  sync-release-pr:
+  forwardport-release-to-main:
     runs-on: ubuntu-latest
     # Only run when a release-please PR is merged (not just closed)
     if: |
@@ -40,9 +40,9 @@ jobs:
           go-version-file: tools/go.mod
           cache-dependency-path: tools/go.sum
 
-      - name: Run sync-release-pr tool 🔄
+      - name: Create forwardport PR 🔀
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           cd tools
-          go run ./release/sync-release-pr --pr "${{ github.event.pull_request.number }}"
+          go run ./release/forwardport-release-to-main --pr "${{ github.event.pull_request.number }}"
