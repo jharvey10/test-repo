@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.1](https://github.com/jharvey10/test-repo/compare/v1.16.0...v1.16.1) (2025-12-06)
+
+
+### Bug Fixes 🐛
+
+* add hotfix note for version 1.16 ([#97](https://github.com/jharvey10/test-repo/issues/97)) ([7c4f423](https://github.com/jharvey10/test-repo/commit/7c4f42385d1abb7ab9017584ad7a6a768987c542))
+
 ## [1.16.0](https://github.com/jharvey10/test-repo/compare/v1.15.3...v1.16.0) (2025-12-06)
 
 
