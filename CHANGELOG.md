@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.16.0](https://github.com/jharvey10/test-repo/compare/v1.15.3...v1.16.0) (2025-12-06)
+
+
+### Features 🌟
+
+* the wowfile again ([#92](https://github.com/jharvey10/test-repo/issues/92)) ([0666d8e](https://github.com/jharvey10/test-repo/commit/0666d8e725dd46b190b64cf5a614906823a2fd12))
+
+
+### Bug Fixes 🐛
+
+* add note about normal development on main branch ([#94](https://github.com/jharvey10/test-repo/issues/94)) ([070e0dc](https://github.com/jharvey10/test-repo/commit/070e0dc0d64336fc43a000ea1816373bcd2fd9a0))
+
 ## [1.15.3](https://github.com/jharvey10/test-repo/compare/v1.15.2...v1.15.3) (2025-12-05)
 
 
