@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.18.0](https://github.com/jharvey10/test-repo/compare/v1.17.1...v1.18.0) (2025-12-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* The way it works is different so you need to adjust your stuff.
+
+### Features 🌟
+
+* add a new feature to wowfile.txt ([#115](https://github.com/jharvey10/test-repo/issues/115)) ([e423e6d](https://github.com/jharvey10/test-repo/commit/e423e6dcb78466677ea9c2016f2ffc1251564779))
+
+
+### Bug Fixes 🐛
+
+* add a fix to wowfile.txt ([#117](https://github.com/jharvey10/test-repo/issues/117)) ([39c9d21](https://github.com/jharvey10/test-repo/commit/39c9d21344e7112a7d2df59efa9cd50886195e96))
+* docs for runner ([#116](https://github.com/jharvey10/test-repo/issues/116)) ([00edff7](https://github.com/jharvey10/test-repo/commit/00edff722b0acf43d1d591f8de1b233a26dfab49))
+* update feature description with fix details ([#119](https://github.com/jharvey10/test-repo/issues/119)) ([3372a66](https://github.com/jharvey10/test-repo/commit/3372a6691850c8a0df2f6ac70fd37f61653f5034))
+
 ## [1.17.1](https://github.com/jharvey10/test-repo/compare/v1.17.0...v1.17.1) (2025-12-08)
 
 
