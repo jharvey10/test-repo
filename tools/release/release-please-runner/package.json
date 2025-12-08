@@ -8,6 +8,6 @@
     "release-please": "node index.js"
   },
   "dependencies": {
-    "release-please": "^16.17.0"
+    "release-please": "^17.1.3"
   }
 }
