@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.17.0](https://github.com/jharvey10/test-repo/compare/v1.16.1...v1.17.0) (2025-12-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* This is a breaking change and you should react to it by updating your thing to use the new stuff.
+
+### Features 🌟
+
+* document breaking change in wowfile.txt ([#105](https://github.com/jharvey10/test-repo/issues/105)) ([d647147](https://github.com/jharvey10/test-repo/commit/d647147d38c26fa1fae714a6c495f3bd1095b6aa))
+* update wowfile.txt ([#104](https://github.com/jharvey10/test-repo/issues/104)) ([fd65642](https://github.com/jharvey10/test-repo/commit/fd656427c84136d7cd30a24969a61853583d3292))
+
 v1.12.0
 -----------------
 
