@@ -17,6 +17,7 @@
   "packages": {
     ".": {
       "release-type": "go",
+      "versioning": "minor-breaking",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
