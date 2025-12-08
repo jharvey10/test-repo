@@ -67,6 +67,13 @@ type FindCommitParams struct {
 	Pattern string
 }
 
+// MergeBranchParams holds parameters for MergeBranch.
+type MergeBranchParams struct {
+	Base          string // Target branch to merge into
+	Head          string // Source branch to merge from
+	CommitMessage string // Commit message for the merge
+}
+
 // NewClientFromEnv creates a new Client from environment variables.
 // Reads GITHUB_TOKEN and GITHUB_REPOSITORY (format: owner/repo).
 func NewClientFromEnv(ctx context.Context) (*Client, error) {
@@ -370,4 +377,21 @@ func (c *Client) IsBranchMergedInto(ctx context.Context, source, target string) 
 	// If source is "behind" or "identical" to target, it means target already has all of source's commits
 	status := comparison.GetStatus()
 	return status == "behind" || status == "identical", nil
+}
+
+// MergeBranch merges the head branch into the base branch directly (no PR).
+// This uses GitHub's merge API to create a merge commit.
+func (c *Client) MergeBranch(ctx context.Context, p MergeBranchParams) (*github.RepositoryCommit, error) {
+	req := &github.RepositoryMergeRequest{
+		Base:          github.String(p.Base),
+		Head:          github.String(p.Head),
+		CommitMessage: github.String(p.CommitMessage),
+	}
+
+	commit, _, err := c.api.Repositories.Merge(ctx, c.owner, c.repo, req)
+	if err != nil {
+		return nil, fmt.Errorf("merging %s into %s: %w", p.Head, p.Base, err)
+	}
+
+	return commit, nil
 }

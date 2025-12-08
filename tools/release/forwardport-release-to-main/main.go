@@ -7,8 +7,6 @@ import (
 	"log"
 	"strings"
 
-	"github.com/google/go-github/v57/github"
-
 	gh "github.com/grafana/alloy/tools/release/internal/github"
 )
 
@@ -18,7 +16,7 @@ func main() {
 		dryRun   bool
 	)
 	flag.IntVar(&prNumber, "pr", 0, "Release-please PR number that was merged")
-	flag.BoolVar(&dryRun, "dry-run", false, "Dry run (do not create PR)")
+	flag.BoolVar(&dryRun, "dry-run", false, "Dry run (do not merge)")
 	flag.Parse()
 
 	if prNumber == 0 {
@@ -55,21 +53,7 @@ func main() {
 	fmt.Printf("   Release branch: %s\n", releaseBranch)
 	fmt.Printf("   Version: %s\n", version)
 
-	// Check if there's already an open PR from this release branch to main
-	existingPR, err := client.FindOpenPR(ctx, gh.FindOpenPRParams{
-		Head: releaseBranch,
-		Base: "main",
-	})
-	if err != nil {
-		log.Fatalf("Failed to check for existing PR: %v", err)
-	}
-	if existingPR != nil {
-		fmt.Printf("ℹ️  PR already exists: %s\n", existingPR.GetHTMLURL())
-		return
-	}
-
 	// Check if the release branch is already fully merged into main
-	// We do this by comparing the branches - if main contains all commits from release, skip
 	alreadyMerged, err := client.IsBranchMergedInto(ctx, releaseBranch, "main")
 	if err != nil {
 		log.Fatalf("Failed to check if branch is merged: %v", err)
@@ -81,49 +65,28 @@ func main() {
 
 	if dryRun {
 		fmt.Println("\n🏃 DRY RUN - No changes made")
-		fmt.Printf("Would create PR: %s → main\n", releaseBranch)
+		fmt.Printf("Would merge: %s → main\n", releaseBranch)
 		return
 	}
 
-	// Create a PR to merge the release branch into main
-	forwardportPR, err := createForwardportPR(ctx, client, originalPR, releaseBranch, version)
-	if err != nil {
-		log.Fatalf("Failed to create forwardport PR: %v", err)
-	}
-
-	fmt.Printf("✅ Created forwardport PR: %s\n", forwardportPR.GetHTMLURL())
-}
-
-func createForwardportPR(ctx context.Context, client *gh.Client, originalPR *github.PullRequest, releaseBranch, version string) (*github.PullRequest, error) {
-	title := fmt.Sprintf("chore: forwardport %s to main", releaseBranch)
-
-	body := fmt.Sprintf(`## Forwardport Release Branch to Main
-
-This PR forwardports the %s branch to main after the %s release.
-
-### Triggered By
-- **Release-Please PR:** #%d
-- **Title:** %s
-
-### What's Being Merged
-This brings all release commits (changelog updates, version bumps, tags, etc.) from the release branch into main. This keeps main in sync with all releases and ensures subsequent release branches have access to the full history.
-
-### Merge Strategy
-This PR should be merged with a **merge commit** (not squash or rebase) to preserve the release history and tag reachability.
-
----
-*This forwardport PR was created automatically when the release-please PR was merged.*
-`,
+	// Merge the release branch directly into main
+	commitMessage := fmt.Sprintf("chore: forwardport %s to main\n\nForwardports the %s branch to main after the %s release.\n\nTriggered by release-please PR #%d: %s\n\nThis brings all release commits (changelog updates, version bumps, tags, etc.) from the release branch into main.",
+		releaseBranch,
 		releaseBranch,
 		version,
 		originalPR.GetNumber(),
 		originalPR.GetTitle(),
 	)
 
-	return client.CreatePR(ctx, gh.CreatePRParams{
-		Title: title,
-		Head:  releaseBranch,
-		Base:  "main",
-		Body:  body,
+	commit, err := client.MergeBranch(ctx, gh.MergeBranchParams{
+		Base:          "main",
+		Head:          releaseBranch,
+		CommitMessage: commitMessage,
 	})
+	if err != nil {
+		log.Fatalf("Failed to merge %s into main: %v", releaseBranch, err)
+	}
+
+	fmt.Printf("✅ Merged %s into main\n", releaseBranch)
+	fmt.Printf("   Commit: %s\n", commit.GetSHA())
 }

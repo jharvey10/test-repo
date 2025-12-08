@@ -11,7 +11,6 @@ env:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   forwardport-release-to-main:
@@ -40,7 +39,7 @@ jobs:
           go-version-file: tools/go.mod
           cache-dependency-path: tools/go.sum
 
-      - name: Create forwardport PR 🔀
+      - name: Forwardport to main 🔀
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
