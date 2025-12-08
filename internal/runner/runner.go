@@ -20,7 +20,7 @@ func New() *Runner {
 	}
 }
 
-// Add registers a component with the runner.
+// Add registers a component with the runner. Wow it's a fix.
 func (r *Runner) Add(c component.Component) {
 	r.components = append(r.components, c)
 }
