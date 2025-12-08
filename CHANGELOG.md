@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.1](https://github.com/jharvey10/test-repo/compare/v1.17.0...v1.17.1) (2025-12-08)
+
+
+### Bug Fixes 🐛
+
+* add note about tiny change in wowfile.txt ([#111](https://github.com/jharvey10/test-repo/issues/111)) ([988aeba](https://github.com/jharvey10/test-repo/commit/988aeba7efc0580280118b583b7a6ba315afa4fc))
+
 ## [1.17.0](https://github.com/jharvey10/test-repo/compare/v1.16.1...v1.17.0) (2025-12-08)
 
 
