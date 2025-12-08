@@ -5,13 +5,22 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"sort"
+	"strconv"
+	"strings"
 
 	gh "github.com/grafana/alloy/tools/release/internal/github"
 	"github.com/grafana/alloy/tools/release/internal/version"
 )
 
-// backportLabelColor is the hex color for backport labels (without '#' prefix).
-const backportLabelColor = "63a504"
+const (
+	// backportLabelColor is the hex color for backport labels (without '#' prefix).
+	backportLabelColor = "63a504"
+	// backportLabelPrefix is the prefix for backport labels.
+	backportLabelPrefix = "backport/v"
+	// maxBackportLabels is the maximum number of backport labels to keep.
+	maxBackportLabels = 3
+)
 
 func main() {
 	var (
@@ -101,4 +110,55 @@ func main() {
 	}
 
 	fmt.Printf("✅ Created label: %s\n", backportLabel)
+
+	// Clean up old backport labels (keep only the most recent maxBackportLabels)
+	if err := cleanupOldBackportLabels(ctx, client); err != nil {
+		log.Fatalf("Failed to clean up old backport labels: %v", err)
+	}
+}
+
+// cleanupOldBackportLabels removes backport labels older than n-2.
+func cleanupOldBackportLabels(ctx context.Context, client *gh.Client) error {
+	labels, err := client.ListLabelsWithPrefix(ctx, backportLabelPrefix)
+	if err != nil {
+		return err
+	}
+
+	if len(labels) <= maxBackportLabels {
+		return nil
+	}
+
+	// Sort labels by version (descending)
+	sort.Slice(labels, func(i, j int) bool {
+		vi := parseBackportVersion(labels[i])
+		vj := parseBackportVersion(labels[j])
+		return vi > vj
+	})
+
+	// Delete labels beyond the max count
+	for _, label := range labels[maxBackportLabels:] {
+		if err := client.DeleteLabel(ctx, label); err != nil {
+			return err
+		}
+		fmt.Printf("🗑️  Deleted old label: %s\n", label)
+	}
+
+	return nil
+}
+
+// parseBackportVersion extracts the minor version number from a backport label.
+// e.g., "backport/v1.9" -> 9, "backport/v1.10" -> 10
+func parseBackportVersion(label string) int {
+	// Remove prefix "backport/v"
+	versionStr := strings.TrimPrefix(label, backportLabelPrefix)
+	// Split by "." and get the minor version
+	parts := strings.Split(versionStr, ".")
+	if len(parts) < 2 {
+		return 0
+	}
+	minor, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return 0
+	}
+	return minor
 }
