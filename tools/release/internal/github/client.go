@@ -74,6 +74,13 @@ type MergeBranchParams struct {
 	CommitMessage string // Commit message for the merge
 }
 
+// CreateLabelParams holds parameters for CreateLabel.
+type CreateLabelParams struct {
+	Name        string // Label name
+	Color       string // Hex color without '#' prefix (e.g., "ff0000")
+	Description string // Optional description
+}
+
 // NewClientFromEnv creates a new Client from environment variables.
 // Reads GITHUB_TOKEN and GITHUB_REPOSITORY (format: owner/repo).
 func NewClientFromEnv(ctx context.Context) (*Client, error) {
@@ -394,4 +401,20 @@ func (c *Client) MergeBranch(ctx context.Context, p MergeBranchParams) (*github.
 	}
 
 	return commit, nil
+}
+
+// CreateLabel creates a new label in the repository.
+func (c *Client) CreateLabel(ctx context.Context, p CreateLabelParams) error {
+	label := &github.Label{
+		Name:        github.String(p.Name),
+		Color:       github.String(p.Color),
+		Description: github.String(p.Description),
+	}
+
+	_, _, err := c.api.Issues.CreateLabel(ctx, c.owner, c.repo, label)
+	if err != nil {
+		return fmt.Errorf("creating label %q: %w", p.Name, err)
+	}
+
+	return nil
 }
