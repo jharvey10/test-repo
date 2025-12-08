@@ -10,6 +10,9 @@ import (
 	"github.com/grafana/alloy/tools/release/internal/version"
 )
 
+// backportLabelColor is the hex color for backport labels (without '#' prefix).
+const backportLabelColor = "63a504"
+
 func main() {
 	var (
 		dryRun    bool
@@ -48,6 +51,9 @@ func main() {
 	branchName := fmt.Sprintf("release/v%s", nextMinor)
 	fmt.Printf("Release branch: %s\n", branchName)
 
+	backportLabel := fmt.Sprintf("backport/v%s", nextMinor)
+	fmt.Printf("Backport label: %s\n", backportLabel)
+
 	// Check if branch already exists
 	exists, err := client.BranchExists(ctx, branchName)
 	if err != nil {
@@ -60,6 +66,7 @@ func main() {
 	if dryRun {
 		fmt.Println("\n🏃 DRY RUN - No changes made")
 		fmt.Printf("Would create branch: %s\n", branchName)
+		fmt.Printf("Would create label: %s\n", backportLabel)
 		fmt.Printf("From: %s\n", sourceRef)
 		return
 	}
@@ -82,4 +89,16 @@ func main() {
 
 	fmt.Printf("✅ Created branch: %s\n", branchName)
 	fmt.Printf("🔗 https://github.com/%s/%s/tree/%s\n", client.Owner(), client.Repo(), branchName)
+
+	// Create the backport label
+	err = client.CreateLabel(ctx, gh.CreateLabelParams{
+		Name:        backportLabel,
+		Color:       backportLabelColor,
+		Description: fmt.Sprintf("Backport to %s", branchName),
+	})
+	if err != nil {
+		log.Fatalf("Failed to create label: %v", err)
+	}
+
+	fmt.Printf("✅ Created label: %s\n", backportLabel)
 }
