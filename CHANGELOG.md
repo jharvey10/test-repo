@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.19.0](https://github.com/jharvey10/test-repo/compare/v1.18.0...v1.19.0) (2025-12-09)
+
+
+### Features 🌟
+
+* add a new feature to wowfile.txt ([#121](https://github.com/jharvey10/test-repo/issues/121)) ([92e303a](https://github.com/jharvey10/test-repo/commit/92e303aa61b54fb56fefa1604b278337ced8ce6f))
+
+
+### Bug Fixes 🐛
+
+* update wowfile.txt with a bugfix ([#122](https://github.com/jharvey10/test-repo/issues/122)) ([3c8d27a](https://github.com/jharvey10/test-repo/commit/3c8d27a954cf63b39fecd5760deb46894f18f1c2))
+
 ## [1.18.0](https://github.com/jharvey10/test-repo/compare/v1.17.1...v1.18.0) (2025-12-08)
 
 
