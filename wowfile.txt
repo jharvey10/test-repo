@@ -21,4 +21,4 @@ this is a tiny change!
 wow i'm adding a new feature, but it needed a fix
 wow i'm adding a fix
 wow this is a new feature, but it needed a bugfix
-wow this is a bugfix
+wow this is a bugfix x2
