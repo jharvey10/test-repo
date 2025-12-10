@@ -30,7 +30,7 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
 
-      - name: Set up Go
+      - name: Set up Go 🏗️
         uses: actions/setup-go@v5
         with:
           go-version-file: tools/go.mod

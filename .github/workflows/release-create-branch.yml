@@ -34,13 +34,13 @@ jobs:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: Set up Go
+      - name: Set up Go 🏗️
         uses: actions/setup-go@v5
         with:
           go-version-file: tools/go.mod
           cache-dependency-path: tools/go.sum
 
-      - name: Run create-release-branch tool
+      - name: Run create-release-branch tool 🌿
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |

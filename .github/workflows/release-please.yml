@@ -20,19 +20,19 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
-      - name: Checkout repository
+      - name: Checkout repository 🛎️
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js 🏗️
         uses: actions/setup-node@v4
         with:
           node-version-file: tools/release/release-please-runner/.nvmrc
 
-      - name: Install dependencies
+      - name: Install dependencies 📦
         working-directory: tools/release/release-please-runner
         run: npm install
 
-      - name: Run release-please
+      - name: Run release-please 🚀
         working-directory: tools/release/release-please-runner
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
