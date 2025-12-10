@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Generate token 🔐
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v2
         id: app-token
         with:
           app-id: ${{ secrets.APP_ID }}
@@ -48,6 +48,7 @@ jobs:
       - name: Run create-rc tool
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
         run: |
           cd tools
           go run ./release/create-rc --branch "${{ github.ref_name }}" ${{ inputs.dry_run == true && '--dry-run' || '' }}
