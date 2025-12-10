@@ -42,9 +42,11 @@ type CreateBranchParams struct {
 
 // CreateTagParams holds parameters for CreateTag.
 type CreateTagParams struct {
-	Tag     string
-	SHA     string
-	Message string
+	Tag         string
+	SHA         string
+	Message     string
+	TaggerName  string // Required for signed tags (e.g., "my-app[bot]")
+	TaggerEmail string // Required for signed tags (e.g., "12345+my-app[bot]@users.noreply.github.com")
 }
 
 // CreatePRParams holds parameters for CreatePR.
@@ -193,6 +195,8 @@ func (c *Client) CreateBranch(ctx context.Context, p CreateBranchParams) error {
 }
 
 // CreateTag creates an annotated tag.
+// When TaggerName and TaggerEmail are provided and match the GitHub App's identity,
+// GitHub will automatically sign the tag, showing it as "Verified" in the UI.
 func (c *Client) CreateTag(ctx context.Context, p CreateTagParams) error {
 	tagObj := &github.Tag{
 		Tag:     github.String(p.Tag),
@@ -201,6 +205,14 @@ func (c *Client) CreateTag(ctx context.Context, p CreateTagParams) error {
 			Type: github.String("commit"),
 			SHA:  github.String(p.SHA),
 		},
+	}
+
+	// Add tagger information for signed tags
+	if p.TaggerName != "" && p.TaggerEmail != "" {
+		tagObj.Tagger = &github.CommitAuthor{
+			Name:  github.String(p.TaggerName),
+			Email: github.String(p.TaggerEmail),
+		}
 	}
 
 	createdTag, _, err := c.api.Git.CreateTag(ctx, c.owner, c.repo, tagObj)

@@ -76,16 +76,25 @@ func main() {
 	branchSHA := pr.GetHead().GetSHA()
 	fmt.Printf("Branch HEAD SHA: %s\n", branchSHA)
 
+	// Get app identity for signed tags
+	appIdentity, err := client.GetAppIdentity(ctx)
+	if err != nil {
+		log.Fatalf("Failed to get app identity: %v", err)
+	}
+	fmt.Printf("Tagger: %s <%s>\n", appIdentity.Name, appIdentity.Email)
+
 	// Create the tag
 	err = client.CreateTag(ctx, gh.CreateTagParams{
-		Tag:     rcTag,
-		SHA:     branchSHA,
-		Message: fmt.Sprintf("Release candidate %s", rcTag),
+		Tag:         rcTag,
+		SHA:         branchSHA,
+		Message:     fmt.Sprintf("Release candidate %s", rcTag),
+		TaggerName:  appIdentity.Name,
+		TaggerEmail: appIdentity.Email,
 	})
 	if err != nil {
 		log.Fatalf("Failed to create tag: %v", err)
 	}
-	fmt.Printf("✅ Created tag: %s\n", rcTag)
+	fmt.Printf("✅ Created tag: %s (signed)\n", rcTag)
 
 	// Create draft prerelease
 	releaseURL, err := createDraftPrerelease(ctx, client, rcTag, ver, rcNumber, pr.GetNumber())
