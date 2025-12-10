@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.2](https://github.com/jharvey10/test-repo/compare/v1.19.1...v1.19.2) (2025-12-10)
+
+
+### Bug Fixes 🐛
+
+* one more fix ([#130](https://github.com/jharvey10/test-repo/issues/130)) ([2c85849](https://github.com/jharvey10/test-repo/commit/2c858492f9718b8167e35bd1705502fd966fadbb))
+
 ## [1.19.1](https://github.com/jharvey10/test-repo/compare/v1.19.0...v1.19.1) (2025-12-09)
 
 
