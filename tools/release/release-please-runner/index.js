@@ -41,9 +41,8 @@ function parseInputs() {
   };
 }
 
-const TEMP_CONFIG_FILE = '.release-please-config.tmp.json';
-
 function generateConfigFile(inputs) {
+  const tempConfigFileName = '.release-please-config.tmp.json';
   const repoRoot = path.resolve(process.cwd(), '..', '..', '..');
   const config = JSON.parse(fs.readFileSync(path.join(repoRoot, inputs.configFile), 'utf8'));
 
@@ -54,7 +53,11 @@ function generateConfigFile(inputs) {
     config['pull-request-header'] = inputs.pullRequestHeader;
   }
 
-  fs.writeFileSync(path.join(process.cwd(), TEMP_CONFIG_FILE), JSON.stringify(config, null, 2));
+  const outputPath = path.join(process.cwd(), tempConfigFileName);
+
+  fs.writeFileSync(outputPath, JSON.stringify(config, null, 2));
+
+  return outputPath;
 }
 
 function loadManifest(github, inputs, configFile) {
@@ -72,16 +75,16 @@ async function main() {
   console.log(`Running release-please version: ${VERSION}`);
   const inputs = parseInputs();
   const github = await getGitHubInstance(inputs);
-  generateConfigFile(inputs);
+  const configFilePath = generateConfigFile(inputs);
 
   if (!inputs.skipGitHubRelease) {
-    const manifest = await loadManifest(github, inputs, TEMP_CONFIG_FILE);
+    const manifest = await loadManifest(github, inputs, configFilePath);
     console.log('Creating releases');
     outputReleases(await manifest.createReleases());
   }
 
   if (!inputs.skipGitHubPullRequest) {
-    const manifest = await loadManifest(github, inputs, TEMP_CONFIG_FILE);
+    const manifest = await loadManifest(github, inputs, configFilePath);
     console.log('Creating pull requests');
     outputPRs(await manifest.createPullRequests());
   }
