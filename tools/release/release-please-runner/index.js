@@ -55,6 +55,8 @@ function generateConfigFile(inputs) {
 
   const outputPath = path.join(process.cwd(), tempConfigFileName);
 
+  console.log(`Writing config file to ${outputPath}`);
+
   fs.writeFileSync(outputPath, JSON.stringify(config, null, 2));
 
   return outputPath;
