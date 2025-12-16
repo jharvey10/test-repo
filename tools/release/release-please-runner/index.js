@@ -42,7 +42,7 @@ function parseInputs() {
 }
 
 function generateConfigFile(inputs) {
-  const tempConfigFileName = '.release-please-config.tmp.json';
+  const tempConfigFileName = 'release-please-config.tmp.json';
   const repoRoot = path.resolve(process.cwd(), '..', '..', '..');
   const config = JSON.parse(fs.readFileSync(path.join(repoRoot, inputs.configFile), 'utf8'));
 
@@ -59,6 +59,7 @@ function generateConfigFile(inputs) {
 
   fs.writeFileSync(outputPath, JSON.stringify(config, null, 2));
 
+  console.log('config file contents:', fs.readFileSync(outputPath, 'utf8'));
   return outputPath;
 }
 
