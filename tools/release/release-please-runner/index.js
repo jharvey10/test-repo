@@ -5,6 +5,8 @@
  * Adapted for CLI usage with custom versioning strategy.
  */
 
+import fs from 'fs';
+import path from 'path';
 import { GitHub, Manifest, VERSION } from 'release-please';
 import { registerVersioningStrategy } from 'release-please/build/src/factories/versioning-strategy-factory.js';
 import { MinorBreakingVersioningStrategy } from './minor-breaking-versioning.js';
@@ -16,23 +18,52 @@ const DEFAULT_CONFIG_FILE = 'release-please-config.json';
 const DEFAULT_MANIFEST_FILE = '.release-please-manifest.json';
 
 function parseInputs() {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) {
+    throw new Error('GITHUB_TOKEN environment variable is required');
+  }
+
+  const repoUrl = process.env.REPO_URL || process.env.GITHUB_REPOSITORY || '';
+  if (!repoUrl) {
+    throw new Error('REPO_URL or GITHUB_REPOSITORY environment variable is required');
+  }
+
   return {
-    token: process.env.GITHUB_TOKEN,
-    repoUrl: process.env.REPO_URL || process.env.GITHUB_REPOSITORY || '',
+    token,
+    repoUrl,
     targetBranch: process.env.TARGET_BRANCH || undefined,
     configFile: process.env.CONFIG_FILE || DEFAULT_CONFIG_FILE,
     manifestFile: process.env.MANIFEST_FILE || DEFAULT_MANIFEST_FILE,
     skipGitHubRelease: process.env.SKIP_GITHUB_RELEASE === 'true',
     skipGitHubPullRequest: process.env.SKIP_GITHUB_PULL_REQUEST === 'true',
+    pullRequestTitlePattern: process.env.PULL_REQUEST_TITLE_PATTERN || undefined,
+    pullRequestHeader: process.env.PULL_REQUEST_HEADER || undefined,
   };
 }
 
-function loadManifest(github, inputs) {
+const TEMP_CONFIG_FILE = '.release-please-config.tmp.json';
+
+function generateConfigFile(inputs) {
+  const repoRoot = path.resolve(process.cwd(), '..', '..', '..');
+  const config = JSON.parse(fs.readFileSync(path.join(repoRoot, inputs.configFile), 'utf8'));
+
+  if (inputs.pullRequestTitlePattern) {
+    config['pull-request-title-pattern'] = inputs.pullRequestTitlePattern;
+  }
+  if (inputs.pullRequestHeader) {
+    config['pull-request-header'] = inputs.pullRequestHeader;
+  }
+
+  fs.writeFileSync(path.join(process.cwd(), TEMP_CONFIG_FILE), JSON.stringify(config, null, 2));
+}
+
+function loadManifest(github, inputs, configFile) {
   console.log('Loading manifest from config file');
+
   return Manifest.fromManifest(
     github,
-    github.repository.defaultBranch,
-    inputs.configFile,
+    inputs.targetBranch || github.repository.defaultBranch,
+    configFile,
     inputs.manifestFile
   );
 }
@@ -41,15 +72,16 @@ async function main() {
   console.log(`Running release-please version: ${VERSION}`);
   const inputs = parseInputs();
   const github = await getGitHubInstance(inputs);
+  generateConfigFile(inputs);
 
   if (!inputs.skipGitHubRelease) {
-    const manifest = await loadManifest(github, inputs);
+    const manifest = await loadManifest(github, inputs, TEMP_CONFIG_FILE);
     console.log('Creating releases');
     outputReleases(await manifest.createReleases());
   }
 
   if (!inputs.skipGitHubPullRequest) {
-    const manifest = await loadManifest(github, inputs);
+    const manifest = await loadManifest(github, inputs, TEMP_CONFIG_FILE);
     console.log('Creating pull requests');
     outputPRs(await manifest.createPullRequests());
   }
