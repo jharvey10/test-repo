@@ -80,6 +80,10 @@ async function main() {
  * @param {PullRequest[]} prs - The pull requests to update
  */
 async function applyPullRequestCustomizations(github, inputs, prs) {
+  console.log('applyPullRequestCustomizations', inputs, prs);
+  console.log('inputs.pullRequestTitle', inputs.pullRequestTitle);
+  console.log('inputs.pullRequestHeader', inputs.pullRequestHeader);
+  console.log('prs', JSON.stringify(prs, null, 2));
   const definedPrs = prs.filter(pr => pr !== undefined);
   if (definedPrs.length === 0) {
     return;
