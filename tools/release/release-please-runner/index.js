@@ -89,6 +89,9 @@ async function applyPullRequestCustomizations(github, inputs, prs) {
     return;
   }
 
+  const [owner, repo] = inputs.repoUrl.split('/');
+  const octokit = new Octokit({ auth: inputs.token });
+
   for (const pr of definedPrs) {
     const updates = {};
     if (inputs.pullRequestTitle) {
@@ -100,7 +103,12 @@ async function applyPullRequestCustomizations(github, inputs, prs) {
     }
 
     console.log(`Customizing PR #${pr.number} title/body`);
-    await github.updatePullRequest(pr.number, updates, inputs.targetBranch);
+    await octokit.pulls.update({
+      owner,
+      repo,
+      pull_number: pr.number,
+      ...updates,
+    });
   }
 }
 
