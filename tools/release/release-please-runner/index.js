@@ -68,45 +68,47 @@ async function main() {
     const prs = await manifest.createPullRequests();
     outputPRs(prs);
 
-    await applyPullRequestCustomizations(github, inputs, prs);
+    await applyPullRequestCustomizations(inputs, prs);
   }
 }
 
 /**
  * Update PR title/body after release-please creates them.
  *
- * @param {GitHub} github - The GitHub instance
  * @param {Object} inputs - The input parameters
  * @param {PullRequest[]} prs - The pull requests to update
  */
-async function applyPullRequestCustomizations(github, inputs, prs) {
-  console.log('applyPullRequestCustomizations', inputs, prs);
-  console.log('inputs.pullRequestTitle', inputs.pullRequestTitle);
-  console.log('inputs.pullRequestHeader', inputs.pullRequestHeader);
-  console.log('prs', JSON.stringify(prs, null, 2));
+async function applyPullRequestCustomizations(inputs, prs) {
   const definedPrs = prs.filter(pr => pr !== undefined);
   if (definedPrs.length === 0) {
     return;
   }
 
-  const updates = {};
+  const [owner, repo] = inputs.repoUrl.split('/');
+  const octokit = new Octokit({ auth: inputs.token });
 
-  if (inputs.pullRequestTitle) {
-    updates.title = inputs.pullRequestTitle;
-  }
+    const updates = {};
 
-  if (inputs.pullRequestHeader) {
-    updates.body = `${inputs.pullRequestHeader}\n\n${pr.body}`;
-  }
+    if (inputs.pullRequestTitle) {
+      updates.title = inputs.pullRequestTitle;
+    }
 
-  // check if updates is empty
+    if (inputs.pullRequestHeader) {
+      updates.body = `${inputs.pullRequestHeader}\n\n${pr.body}`;
+    }
+
   if (Object.keys(updates).length === 0) {
     return;
   }
 
   for (const pr of definedPrs) {
     console.log(`Customizing PR #${pr.number} title/body`);
-    await github.updatePullRequest(pr.number, updates, inputs.targetBranch);
+    await octokit.pulls.update({
+      owner,
+      repo,
+      pull_number: pr.number,
+      ...updates,
+    });
   }
 }
 
