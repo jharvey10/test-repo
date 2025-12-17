@@ -68,27 +68,29 @@ async function main() {
     const prs = await manifest.createPullRequests();
     outputPRs(prs);
 
-    await applyPullRequestCustomizations(inputs, prs);
+    await applyPullRequestCustomizations(github, inputs, prs);
   }
 }
 
 /**
  * Update PR title/body after release-please creates them.
  *
+ * @param {GitHub} github - The GitHub instance
  * @param {Object} inputs - The input parameters
  * @param {PullRequest[]} prs - The pull requests to update
  */
-async function applyPullRequestCustomizations(inputs, prs) {
+async function applyPullRequestCustomizations(github, inputs, prs) {
   const definedPrs = prs.filter(pr => pr !== undefined);
   if (definedPrs.length === 0) {
     return;
   }
 
-  const [owner, repo] = inputs.repoUrl.split('/');
-  const octokit = new Octokit({ auth: inputs.token });
+  if (!inputs.pullRequestTitle && !inputs.pullRequestHeader) {
+    return;
+  }
 
+  for (const pr of definedPrs) {
     const updates = {};
-
     if (inputs.pullRequestTitle) {
       updates.title = inputs.pullRequestTitle;
     }
@@ -97,18 +99,8 @@ async function applyPullRequestCustomizations(inputs, prs) {
       updates.body = `${inputs.pullRequestHeader}\n\n${pr.body}`;
     }
 
-  if (Object.keys(updates).length === 0) {
-    return;
-  }
-
-  for (const pr of definedPrs) {
     console.log(`Customizing PR #${pr.number} title/body`);
-    await octokit.pulls.update({
-      owner,
-      repo,
-      pull_number: pr.number,
-      ...updates,
-    });
+    await github.updatePullRequest(pr.number, updates, inputs.targetBranch);
   }
 }
 
