@@ -41,7 +41,7 @@ jobs:
         if: github.ref_name == 'main'
         run: |
           echo "SKIP_GITHUB_RELEASE=true" >> $GITHUB_ENV
-          echo "PULL_REQUEST_TITLE_PATTERN=[DO NOT MERGE] chore\${scope}: release\${component} \${version}" >> $GITHUB_ENV
+          echo "PULL_REQUEST_TITLE=Unreleased Changes" >> $GITHUB_ENV
           {
             echo "PULL_REQUEST_HEADER<<EOF"
             echo '🚫 **DO NOT MERGE - This PR is for tracking purposes only**'
@@ -66,6 +66,6 @@ jobs:
           CONFIG_FILE: release-please-config.json
           MANIFEST_FILE: .release-please-manifest.json
           SKIP_GITHUB_RELEASE: ${{ env.SKIP_GITHUB_RELEASE }}
-          PULL_REQUEST_TITLE_PATTERN: ${{ env.PULL_REQUEST_TITLE_PATTERN }}
+          PULL_REQUEST_TITLE: ${{ env.PULL_REQUEST_TITLE }}
           PULL_REQUEST_HEADER: ${{ env.PULL_REQUEST_HEADER }}
         run: node index.js

@@ -5,9 +5,8 @@
  * Adapted for CLI usage with custom versioning strategy.
  */
 
-import fs from 'fs';
-import path from 'path';
 import { GitHub, Manifest, VERSION } from 'release-please';
+import { Octokit } from '@octokit/rest';
 import { registerVersioningStrategy } from 'release-please/build/src/factories/versioning-strategy-factory.js';
 import { MinorBreakingVersioningStrategy } from './minor-breaking-versioning.js';
 
@@ -36,40 +35,17 @@ function parseInputs() {
     manifestFile: process.env.MANIFEST_FILE || DEFAULT_MANIFEST_FILE,
     skipGitHubRelease: process.env.SKIP_GITHUB_RELEASE === 'true',
     skipGitHubPullRequest: process.env.SKIP_GITHUB_PULL_REQUEST === 'true',
-    pullRequestTitlePattern: process.env.PULL_REQUEST_TITLE_PATTERN || undefined,
-    pullRequestHeader: process.env.PULL_REQUEST_HEADER || undefined,
+    pullRequestTitle: process.env.PULL_REQUEST_TITLE || '',
+    pullRequestHeader: process.env.PULL_REQUEST_HEADER || '',
   };
 }
 
-function generateConfigFile(inputs) {
-  const tempConfigFileName = 'release-please-config.tmp.json';
-  const repoRoot = path.resolve(process.cwd(), '..', '..', '..');
-  const config = JSON.parse(fs.readFileSync(path.join(repoRoot, inputs.configFile), 'utf8'));
-
-  if (inputs.pullRequestTitlePattern) {
-    config['pull-request-title-pattern'] = inputs.pullRequestTitlePattern;
-  }
-  if (inputs.pullRequestHeader) {
-    config['pull-request-header'] = inputs.pullRequestHeader;
-  }
-
-  const outputPath = path.join(process.cwd(), tempConfigFileName);
-
-  console.log(`Writing config file to ${outputPath}`);
-
-  fs.writeFileSync(outputPath, JSON.stringify(config, null, 2));
-
-  console.log('config file contents:', fs.readFileSync(outputPath, 'utf8'));
-  return outputPath;
-}
-
-function loadManifest(github, inputs, configFile) {
+function loadManifest(github, inputs) {
   console.log('Loading manifest from config file');
-
   return Manifest.fromManifest(
     github,
     inputs.targetBranch || github.repository.defaultBranch,
-    configFile,
+    inputs.configFile,
     inputs.manifestFile
   );
 }
@@ -78,18 +54,55 @@ async function main() {
   console.log(`Running release-please version: ${VERSION}`);
   const inputs = parseInputs();
   const github = await getGitHubInstance(inputs);
-  const configFilePath = generateConfigFile(inputs);
 
   if (!inputs.skipGitHubRelease) {
-    const manifest = await loadManifest(github, inputs, configFilePath);
+    const manifest = await loadManifest(github, inputs);
     console.log('Creating releases');
     outputReleases(await manifest.createReleases());
   }
 
   if (!inputs.skipGitHubPullRequest) {
-    const manifest = await loadManifest(github, inputs, configFilePath);
+    const manifest = await loadManifest(github, inputs);
     console.log('Creating pull requests');
-    outputPRs(await manifest.createPullRequests());
+
+    const prs = await manifest.createPullRequests();
+    outputPRs(prs);
+
+    await applyPullRequestCustomizations(github, inputs, prs);
+  }
+}
+
+/**
+ * Update PR title/body after release-please creates them.
+ *
+ * @param {GitHub} github - The GitHub instance
+ * @param {Object} inputs - The input parameters
+ * @param {PullRequest[]} prs - The pull requests to update
+ */
+async function applyPullRequestCustomizations(github, inputs, prs) {
+  const definedPrs = prs.filter(pr => pr !== undefined);
+  if (definedPrs.length === 0) {
+    return;
+  }
+
+  const updates = {};
+
+  if (inputs.pullRequestTitle) {
+    updates.title = inputs.pullRequestTitle;
+  }
+
+  if (inputs.pullRequestHeader) {
+    updates.body = `${inputs.pullRequestHeader}\n\n${pr.body}`;
+  }
+
+  // check if updates is empty
+  if (Object.keys(updates).length === 0) {
+    return;
+  }
+
+  for (const pr of definedPrs) {
+    console.log(`Customizing PR #${pr.number} title/body`);
+    await github.updatePullRequest(pr.number, updates, inputs.targetBranch);
   }
 }
 
