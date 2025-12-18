@@ -23,3 +23,5 @@ wow i'm adding a fix
 wow this is a new feature, but it needed a bugfix
 wow this is a bugfix x2
 one more fix
+this is a random feature
+it's a new fix
