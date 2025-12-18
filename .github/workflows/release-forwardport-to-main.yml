@@ -29,6 +29,7 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
+          persist-credentials: true # Needed for subsequent git operations
 
       - name: Set up Go 🏗️
         uses: actions/setup-go@v5

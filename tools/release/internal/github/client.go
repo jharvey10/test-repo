@@ -54,19 +54,15 @@ type FindCommitParams struct {
 	Pattern string
 }
 
-// MergeBranchParams holds parameters for MergeBranch.
-type MergeBranchParams struct {
-	Base          string // Target branch to merge into
-	Head          string // Source branch to merge from
-	CommitMessage string // Commit message for the merge
-}
-
 // CreateLabelParams holds parameters for CreateLabel.
 type CreateLabelParams struct {
 	Name        string // Label name
 	Color       string // Hex color without '#' prefix (e.g., "ff0000")
 	Description string // Optional description
 }
+
+// ErrCommitNotFound is returned when a commit matching the search criteria is not found.
+var ErrCommitNotFound = errors.New("commit not found")
 
 // NewClientFromEnv creates a new Client from environment variables.
 // Reads GITHUB_TOKEN and GITHUB_REPOSITORY (format: owner/repo).
@@ -292,14 +288,14 @@ func (c *Client) FindCommitWithPattern(ctx context.Context, p FindCommitParams) 
 		opts.Page = resp.NextPage
 	}
 
-	return "", fmt.Errorf("no commit found with pattern %q in branch %s", p.Pattern, p.Branch)
+	return "", fmt.Errorf("%w with pattern %q in branch %s", ErrCommitNotFound, p.Pattern, p.Branch)
 }
 
 // CommitExistsWithPattern checks if any commit in the branch history contains the pattern in its title.
 func (c *Client) CommitExistsWithPattern(ctx context.Context, p FindCommitParams) (bool, error) {
 	_, err := c.FindCommitWithPattern(ctx, p)
 	if err != nil {
-		if strings.Contains(err.Error(), "no commit found") {
+		if errors.Is(err, ErrCommitNotFound) {
 			return false, nil
 		}
 		return false, err
@@ -320,23 +316,6 @@ func (c *Client) IsBranchMergedInto(ctx context.Context, source, target string) 
 	return status == "behind" || status == "identical", nil
 }
 
-// MergeBranch merges the head branch into the base branch directly (no PR).
-// This uses GitHub's merge API to create a merge commit.
-func (c *Client) MergeBranch(ctx context.Context, p MergeBranchParams) (*github.RepositoryCommit, error) {
-	req := &github.RepositoryMergeRequest{
-		Base:          github.String(p.Base),
-		Head:          github.String(p.Head),
-		CommitMessage: github.String(p.CommitMessage),
-	}
-
-	commit, _, err := c.api.Repositories.Merge(ctx, c.owner, c.repo, req)
-	if err != nil {
-		return nil, fmt.Errorf("merging %s into %s: %w", p.Head, p.Base, err)
-	}
-
-	return commit, nil
-}
-
 // CreateLabel creates a new label in the repository.
 func (c *Client) CreateLabel(ctx context.Context, p CreateLabelParams) error {
 	label := &github.Label{
@@ -353,38 +332,22 @@ func (c *Client) CreateLabel(ctx context.Context, p CreateLabelParams) error {
 	return nil
 }
 
-// ListLabelsWithPrefix returns all labels that start with the given prefix.
-func (c *Client) ListLabelsWithPrefix(ctx context.Context, prefix string) ([]string, error) {
-	var result []string
-	opts := &github.ListOptions{PerPage: 100}
-
-	for {
-		labels, resp, err := c.api.Issues.ListLabels(ctx, c.owner, c.repo, opts)
-		if err != nil {
-			return nil, fmt.Errorf("listing labels: %w", err)
-		}
-
-		for _, label := range labels {
-			name := label.GetName()
-			if strings.HasPrefix(name, prefix) {
-				result = append(result, name)
-			}
-		}
-
-		if resp.NextPage == 0 {
-			break
-		}
-		opts.Page = resp.NextPage
+// GetReleaseByTag fetches a release by its tag name.
+func (c *Client) GetReleaseByTag(ctx context.Context, tag string) (*github.RepositoryRelease, error) {
+	release, _, err := c.api.Repositories.GetReleaseByTag(ctx, c.owner, c.repo, tag)
+	if err != nil {
+		return nil, fmt.Errorf("getting release for tag %s: %w", tag, err)
 	}
-
-	return result, nil
+	return release, nil
 }
 
-// DeleteLabel deletes a label from the repository.
-func (c *Client) DeleteLabel(ctx context.Context, name string) error {
-	_, err := c.api.Issues.DeleteLabel(ctx, c.owner, c.repo, name)
+// UpdateReleaseBody updates only the body of a release.
+func (c *Client) UpdateReleaseBody(ctx context.Context, releaseID int64, body string) error {
+	_, _, err := c.api.Repositories.EditRelease(ctx, c.owner, c.repo, releaseID, &github.RepositoryRelease{
+		Body: github.String(body),
+	})
 	if err != nil {
-		return fmt.Errorf("deleting label %q: %w", name, err)
+		return fmt.Errorf("updating release %d body: %w", releaseID, err)
 	}
 	return nil
 }

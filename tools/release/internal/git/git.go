@@ -10,16 +10,28 @@ import (
 	"strings"
 )
 
-// validBranchName matches safe git branch names (no leading dash, no special chars that could cause issues).
+// validBranchName matches safe git branch names (no leading dash, no special chars that could cause
+// issues).
 var validBranchName = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._/-]*$`)
 
 // validSHA matches a git SHA (hex string, 7-40 chars).
 var validSHA = regexp.MustCompile(`^[0-9a-f]{7,40}$`)
 
-// validateBranchName ensures a branch name is safe to use in git commands.
+// validateBranchName ensures a branch name is safe to use in git commands by preventing things like
+// directory traversal and dangerous patterns.
 func validateBranchName(name string) error {
 	if !validBranchName.MatchString(name) {
 		return fmt.Errorf("invalid branch name: %q", name)
+	}
+	// Prevent directory traversal and dangerous patterns
+	if strings.Contains(name, "..") {
+		return fmt.Errorf("branch name must not contain '..': %q", name)
+	}
+	if strings.HasPrefix(name, "/") || strings.HasSuffix(name, "/") {
+		return fmt.Errorf("branch name must not start or end with '/': %q", name)
+	}
+	if strings.Contains(name, "//") {
+		return fmt.Errorf("branch name must not contain consecutive slashes: %q", name)
 	}
 	return nil
 }
@@ -41,15 +53,19 @@ func run(args ...string) error {
 }
 
 // runOutput executes a command and returns its stdout.
+// On error, stderr is included in the error message for better diagnostics.
 func runOutput(args ...string) (string, error) {
 	cmd := exec.Command(args[0], args[1:]...)
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = os.Stderr
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
+		if stderr.Len() > 0 {
+			return "", fmt.Errorf("%w: %s", err, strings.TrimSpace(stderr.String()))
+		}
 		return "", err
 	}
-	return strings.TrimSpace(out.String()), nil
+	return strings.TrimSpace(stdout.String()), nil
 }
 
 // ConfigureUser configures git with the given user identity for commit authorship.
@@ -135,22 +151,14 @@ func Checkout(branch string) error {
 	return nil
 }
 
-// Merge merges a branch into the current branch with a merge commit.
-// The message is used for the merge commit.
-func Merge(branch, message string) error {
+// MergeOurs merges a branch using the "ours" strategy, which creates a merge commit
+// that records the merge but keeps the current branch's content unchanged.
+func MergeOurs(branch, message string) error {
 	if err := validateBranchName(branch); err != nil {
 		return err
 	}
-	if err := run("git", "merge", "--no-ff", "-m", message, branch); err != nil {
-		return fmt.Errorf("merging branch %s: %w", branch, err)
-	}
-	return nil
-}
-
-// PushBranch pushes the current branch to origin with tracking.
-func PushBranch() error {
-	if err := run("git", "push", "-u", "origin", "HEAD"); err != nil {
-		return fmt.Errorf("pushing current branch: %w", err)
+	if err := run("git", "merge", "-s", "ours", "origin/"+branch, "-m", message); err != nil {
+		return fmt.Errorf("merging branch %s with ours strategy: %w", branch, err)
 	}
 	return nil
 }

@@ -7,6 +7,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/grafana/alloy/tools/release/internal/git"
 	gh "github.com/grafana/alloy/tools/release/internal/github"
 )
 
@@ -69,8 +70,27 @@ func main() {
 		return
 	}
 
-	// Merge the release branch directly into main
-	commitMessage := fmt.Sprintf("chore: forwardport %s to main\n\nForwardports the %s branch to main after the %s release.\n\nTriggered by release-please PR #%d: %s\n\nThis brings all release commits (changelog updates, version bumps, tags, etc.) from the release branch into main.",
+	// Get the app identity for git commits
+	appIdentity, err := client.GetAppIdentity(ctx)
+	if err != nil {
+		log.Fatalf("Failed to get app identity: %v", err)
+	}
+
+	// Configure git with app identity for commit authorship
+	if err := git.ConfigureUser(appIdentity.Name, appIdentity.Email); err != nil {
+		log.Fatalf("Failed to configure git: %v", err)
+	}
+
+	// Checkout main (assumes branches are already fetched)
+	fmt.Println("🔀 Checking out main...")
+	if err := git.Checkout("main"); err != nil {
+		log.Fatalf("Failed to checkout main: %v", err)
+	}
+
+	// Merge the release branch into main using "ours" strategy.
+	// This creates a merge commit that records the release branch history (including tags)
+	// but keeps main's content unchanged.
+	commitMessage := fmt.Sprintf("chore: forwardport %s to main\n\nForwardports the %s branch to main after the %s release.\n\nTriggered by release-please PR #%d: %s\n\nThis merge uses the 'ours' strategy to record the release branch history\n(including tags) without changing main's content.",
 		releaseBranch,
 		releaseBranch,
 		version,
@@ -78,15 +98,16 @@ func main() {
 		originalPR.GetTitle(),
 	)
 
-	commit, err := client.MergeBranch(ctx, gh.MergeBranchParams{
-		Base:          "main",
-		Head:          releaseBranch,
-		CommitMessage: commitMessage,
-	})
-	if err != nil {
+	fmt.Printf("🔀 Merging %s into main (ours strategy)...\n", releaseBranch)
+	if err := git.MergeOurs(releaseBranch, commitMessage); err != nil {
 		log.Fatalf("Failed to merge %s into main: %v", releaseBranch, err)
 	}
 
-	fmt.Printf("✅ Merged %s into main\n", releaseBranch)
-	fmt.Printf("   Commit: %s\n", commit.GetSHA())
+	// Push the result
+	fmt.Println("📤 Pushing to origin...")
+	if err := git.Push("main"); err != nil {
+		log.Fatalf("Failed to push main: %v", err)
+	}
+
+	fmt.Printf("✅ Merged %s into main (ours strategy)\n", releaseBranch)
 }
