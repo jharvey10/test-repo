@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.3](https://github.com/jharvey10/test-repo/compare/v1.19.2...v1.19.3) (2025-12-18)
+
+
+### Bug Fixes 🐛
+
+* update the wowfile again ([9aaa571](https://github.com/jharvey10/test-repo/commit/9aaa5710690e83b500368a721353c5bd1f384daf))
+
 ## [1.19.2](https://github.com/jharvey10/test-repo/compare/v1.19.1...v1.19.2) (2025-12-18)
 
 
