@@ -7,6 +7,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  id-token: write
 
 jobs:
   backport:
@@ -54,6 +55,7 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
+          persist-credentials: true # Needed for subsequent git operations
 
       - name: Set up Go 🏗️
         if: steps.check.outputs.should_backport == 'true'
@@ -67,9 +69,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          LABELS: ${{ steps.check.outputs.labels }}
         run: |
           cd tools
-          labels='${{ steps.check.outputs.labels }}'
+          labels="${LABELS}"
 
           for label in $(echo "$labels" | jq -r '.[]'); do
             echo "🍒 Processing backport for label: $label"

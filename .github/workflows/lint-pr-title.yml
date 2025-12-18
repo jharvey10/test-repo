@@ -9,6 +9,7 @@ on:
 
 permissions:
   pull-requests: read
+  id-token: write
 
 jobs:
   lint-pr-title:
@@ -40,6 +41,7 @@ jobs:
             ci
             chore
             revert
+            proposal
           # Scope is optional
           requireScope: false
           # Disallow uppercase first letter in subject
