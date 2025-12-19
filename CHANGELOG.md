@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.22.0](https://github.com/jharvey10/test-repo/compare/v1.21.0...v1.22.0) (2025-12-19)
+
+
+### Features 🌟
+
+* slim down content in wowfile.txt ([#149](https://github.com/jharvey10/test-repo/issues/149)) ([8a8d2cd](https://github.com/jharvey10/test-repo/commit/8a8d2cd5f954cfa33de72b11b8a986f174844d57))
+
+
+### Bug Fixes 🐛
+
+* its a fix ([#150](https://github.com/jharvey10/test-repo/issues/150)) ([e5c84ed](https://github.com/jharvey10/test-repo/commit/e5c84ed7624282f782e0bb830e71602ab4a70cfc))
+
 ## [1.21.0](https://github.com/jharvey10/test-repo/compare/v1.20.0...v1.21.0) (2025-12-19)
 
 
