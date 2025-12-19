@@ -3,30 +3,4 @@ new email wow
 okay is this good?
 more testing
 more
-even more stuff
-hey even this can be a feature
-testing out adjusting a goof
-normal feature development stuff
-oops we needed an rc fix
-an actual rc change in a pr
-before we cut the release, we need to cherry pick a change
-something for 1.5.1
-it's a new bug fix!
-okay here we go with editing this thing for 1.16
-normal dev is going on on main, but this is a fix that needs to get into the next release
-we need a hotfix for 1.16
-okay so now we need a minor change for tesing
-wow this is a breaking change here!
-this is a tiny change!
-wow i'm adding a new feature, but it needed a fix
-wow i'm adding a fix
-wow this is a new feature, but it needed a bugfix
-wow this is a bugfix x2
-one more fix
-this is a random feature
-it's a new fix
-its one more fix
-one more time we gonna celebrate
-asdf
-ghjkl;
-it's a fix this time
+slimming it down
