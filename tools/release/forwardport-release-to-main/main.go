@@ -87,10 +87,27 @@ func main() {
 		log.Fatalf("Failed to checkout main: %v", err)
 	}
 
+	// Get the merge commit SHA from the release-please PR - this contains the
+	// version bump and changelog updates we want to sync.
+	mergeCommitSHA := originalPR.GetMergeCommitSHA()
+	if mergeCommitSHA == "" {
+		log.Fatal("Could not get merge commit SHA from PR")
+	}
+	fmt.Printf("   Release-please merge commit: %s\n", mergeCommitSHA[:7])
+
 	// Merge the release branch into main using "ours" strategy.
 	// This creates a merge commit that records the release branch history (including tags)
 	// but keeps main's content unchanged.
-	commitMessage := fmt.Sprintf("chore: forwardport %s to main\n\nForwardports the %s branch to main after the %s release.\n\nTriggered by release-please PR #%d: %s\n\nThis merge uses the 'ours' strategy to record the release branch history\n(including tags) without changing main's content.",
+	commitMessage := fmt.Sprintf(`chore: forwardport %s to main
+
+Forwardports the %s branch to main after the %s release.
+
+Triggered by release-please PR #%d: %s
+
+This commit serves two purposes:
+
+1. Records the release branch history (including tags) while keeping main's content unchanged
+2. Syncs release-please changes (version bumps, changelog updates) with the main branch`,
 		releaseBranch,
 		releaseBranch,
 		version,
@@ -103,11 +120,22 @@ func main() {
 		log.Fatalf("Failed to merge %s into main: %v", releaseBranch, err)
 	}
 
+	// Cherry-pick the release-please changes and amend into the merge commit.
+	// This brings in the version bumps and changelog updates.
+	fmt.Printf("📄 Cherry-picking release-please changes from %s...\n", mergeCommitSHA[:7])
+	if err := git.CherryPick(mergeCommitSHA, false); err != nil {
+		log.Fatalf("Failed to cherry-pick release-please commit: %v", err)
+	}
+
+	if err := git.AmendCommit(); err != nil {
+		log.Fatalf("Failed to amend merge commit: %v", err)
+	}
+
 	// Push the result
 	fmt.Println("📤 Pushing to origin...")
 	if err := git.Push("main"); err != nil {
 		log.Fatalf("Failed to push main: %v", err)
 	}
 
-	fmt.Printf("✅ Merged %s into main (ours strategy)\n", releaseBranch)
+	fmt.Printf("✅ Merged %s into main (ours strategy, with release-please changes)\n", releaseBranch)
 }
