@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.5](https://github.com/jharvey10/test-repo/compare/v1.19.4...v1.19.5) (2025-12-19)
+
+
+### Bug Fixes 🐛
+
+* celebratory line to wowfile.txt ([#139](https://github.com/jharvey10/test-repo/issues/139)) ([d130250](https://github.com/jharvey10/test-repo/commit/d130250a73f35525825bc253f32858583a969bb3))
+
 ## [1.19.4](https://github.com/jharvey10/test-repo/compare/v1.19.3...v1.19.4) (2025-12-18)
 
 
