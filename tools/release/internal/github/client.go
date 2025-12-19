@@ -200,19 +200,21 @@ func (c *Client) ReadManifest(ctx context.Context, ref string) (map[string]strin
 }
 
 // GetAppIdentity returns the GitHub App's identity for use in git commits.
-// It checks for APP_SLUG environment variable and fetches the app ID from the public API.
-// Falls back to the authenticated Apps API if APP_SLUG is not set (requires JWT authentication).
+// It checks for APP_SLUG environment variable and fetches the bot user ID from the API.
+// The bot user ID is required for GitHub to properly attribute commits.
 func (c *Client) GetAppIdentity(ctx context.Context) (AppIdentity, error) {
-	// Prefer APP_SLUG env var - fetch ID from public API (works with installation tokens)
+	// Prefer APP_SLUG env var - fetch bot user ID from users API
 	appSlug := os.Getenv("APP_SLUG")
 	if appSlug != "" {
-		app, _, err := c.api.Apps.Get(ctx, appSlug)
+		botUsername := fmt.Sprintf("%s[bot]", appSlug)
+		// Look up the bot user to get its actual user ID
+		botUser, _, err := c.api.Users.Get(ctx, botUsername)
 		if err != nil {
-			return AppIdentity{}, fmt.Errorf("getting app info for slug %q: %w", appSlug, err)
+			return AppIdentity{}, fmt.Errorf("getting bot user %q: %w", botUsername, err)
 		}
 		return AppIdentity{
-			Name:  fmt.Sprintf("%s[bot]", appSlug),
-			Email: fmt.Sprintf("%d+%s[bot]@users.noreply.github.com", app.GetID(), appSlug),
+			Name:  botUsername,
+			Email: fmt.Sprintf("%d+%s@users.noreply.github.com", botUser.GetID(), botUsername),
 		}, nil
 	}
 
@@ -223,11 +225,17 @@ func (c *Client) GetAppIdentity(ctx context.Context) (AppIdentity, error) {
 	}
 
 	slug := app.GetSlug()
-	id := app.GetID()
+	botUsername := fmt.Sprintf("%s[bot]", slug)
+
+	// Look up the bot user to get its actual user ID
+	botUser, _, err := c.api.Users.Get(ctx, botUsername)
+	if err != nil {
+		return AppIdentity{}, fmt.Errorf("getting bot user %q: %w", botUsername, err)
+	}
 
 	return AppIdentity{
-		Name:  fmt.Sprintf("%s[bot]", slug),
-		Email: fmt.Sprintf("%d+%s[bot]@users.noreply.github.com", id, slug),
+		Name:  botUsername,
+		Email: fmt.Sprintf("%d+%s@users.noreply.github.com", botUser.GetID(), botUsername),
 	}, nil
 }
 
