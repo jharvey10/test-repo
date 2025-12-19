@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.21.0](https://github.com/jharvey10/test-repo/compare/v1.20.0...v1.21.0) (2025-12-19)
+
+
+### Features 🌟
+
+* add new line to wowfile.txt ([#143](https://github.com/jharvey10/test-repo/issues/143)) ([2a5701f](https://github.com/jharvey10/test-repo/commit/2a5701f9dfc833af57e8f1888dfb67ad360eaf2d))
+* wow some stuff for the release ([#145](https://github.com/jharvey10/test-repo/issues/145)) ([7e0ca20](https://github.com/jharvey10/test-repo/commit/7e0ca20d493ebcda92299d0c84a62fb70a9cb8d5))
+
+
+### Bug Fixes 🐛
+
+* it's a fix this time ([#147](https://github.com/jharvey10/test-repo/issues/147)) ([6bcebb1](https://github.com/jharvey10/test-repo/commit/6bcebb1eb7bc908cacc94d57d3be8b379d683d00))
+
 ## [1.19.1](https://github.com/jharvey10/test-repo/compare/v1.19.0...v1.19.1) (2025-12-09)
 
 
