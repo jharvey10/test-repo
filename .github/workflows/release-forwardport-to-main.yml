@@ -17,6 +17,17 @@ jobs:
     if: |
       github.event.pull_request.merged == true &&
       startsWith(github.event.pull_request.head.ref, 'release-please--')
+    env:
+      SLACK_MESSAGE: |
+        :x: *Forwardport to main failed*
+
+        The forwardport operation for PR #${{ github.event.pull_request.number }} failed.
+
+        *Release branch:* `${{ github.event.pull_request.base.ref }}`
+        *PR:* <${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }}>
+        *Workflow run:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View logs>
+
+        Please investigate and manually forwardport if needed.
     steps:
       - name: Generate token 🔐
         uses: actions/create-github-app-token@v2
@@ -49,23 +60,12 @@ jobs:
 
       - name: Notify Slack on failure 📢
         if: failure() && steps.forwardport.outcome == 'failure'
-        env:
-          SLACK_MESSAGE: |
-            :x: *Forwardport to main failed*
-
-            The forwardport operation for PR #${{ github.event.pull_request.number }} failed.
-
-            *Release branch:* `${{ github.event.pull_request.base.ref }}`
-            *PR:* <${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }}>
-            *Workflow run:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View logs>
-
-            Please investigate and manually forwardport if needed.
         uses: grafana/shared-workflows/actions/send-slack-message@0941e3408fa4789fec9062c44a2a9e1832146ba6 #v2.0.1
         with:
           method: chat.postMessage
           payload: |
             {
-              "channel": "${{ fromJSON(steps.get-secrets.outputs.secrets).SLACK_CHANNEL_ID_ALLOY }}",
+              "channel": "C09P31RJ26P",
               "text": ${{ toJSON(env.SLACK_MESSAGE) }},
               "blocks": [
                 {
