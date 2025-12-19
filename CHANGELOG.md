@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.0](https://github.com/jharvey10/test-repo/compare/v1.24.0...v1.25.0) (2025-12-19)
+
+
+### Features 🌟
+
+* new things ([c96d84b](https://github.com/jharvey10/test-repo/commit/c96d84bfaf17463a7105ff4bf2483ae96f89a832))
+
 ## [1.24.0](https://github.com/jharvey10/test-repo/compare/v1.23.0...v1.24.0) (2025-12-19)
 
 
