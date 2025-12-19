@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.20.0](https://github.com/jharvey10/test-repo/compare/v1.19.1...v1.20.0) (2025-12-19)
+
+
+### Features 🌟
+
+* wow it's some great stuff ([2242d3f](https://github.com/jharvey10/test-repo/commit/2242d3f48fb16babccba8b946425e26c22859d67))
+
+
+### Bug Fixes 🐛
+
+* celebratory line to wowfile.txt ([#139](https://github.com/jharvey10/test-repo/issues/139)) ([d130250](https://github.com/jharvey10/test-repo/commit/d130250a73f35525825bc253f32858583a969bb3))
+* celebratory line to wowfile.txt ([#139](https://github.com/jharvey10/test-repo/issues/139)) ([52cbddb](https://github.com/jharvey10/test-repo/commit/52cbddba6c18fa436ab60102daa396f6cda3c3ef))
+* one more fix ([#130](https://github.com/jharvey10/test-repo/issues/130)) ([2c85849](https://github.com/jharvey10/test-repo/commit/2c858492f9718b8167e35bd1705502fd966fadbb))
+* one more fix ([#130](https://github.com/jharvey10/test-repo/issues/130)) ([fb85a8c](https://github.com/jharvey10/test-repo/commit/fb85a8cae5d3d6e9e33bd59ad95fc78609d33f77))
+* update the wowfile again ([9aaa571](https://github.com/jharvey10/test-repo/commit/9aaa5710690e83b500368a721353c5bd1f384daf))
+* update wowfile.txt ([#134](https://github.com/jharvey10/test-repo/issues/134)) ([0614669](https://github.com/jharvey10/test-repo/commit/06146692c69748c395d47da5e4327a3f890e6ec2))
+* update wowfile.txt ([#136](https://github.com/jharvey10/test-repo/issues/136)) ([e0bcfd3](https://github.com/jharvey10/test-repo/commit/e0bcfd31d1e1b890e16ab45c5fe89c5fd241ece0))
+* update wowfile.txt ([#136](https://github.com/jharvey10/test-repo/issues/136)) ([f775a10](https://github.com/jharvey10/test-repo/commit/f775a101fd4aaaa1b7c73b62d3cc3bd57c314ac1))
+
 ## [1.19.1](https://github.com/jharvey10/test-repo/compare/v1.19.0...v1.19.1) (2025-12-09)
 
 
