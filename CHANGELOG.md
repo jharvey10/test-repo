@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.0](https://github.com/jharvey10/test-repo/compare/v1.23.0...v1.24.0) (2025-12-19)
+
+
+### Features 🌟
+
+* add 'hello again' to wowfile.txt ([6b902bc](https://github.com/jharvey10/test-repo/commit/6b902bc98a393155a69b5a7e9547f4b399474786))
+
 ## [1.23.0](https://github.com/jharvey10/test-repo/compare/v1.22.0...v1.23.0) (2025-12-19)
 
 
