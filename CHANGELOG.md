@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.23.0](https://github.com/jharvey10/test-repo/compare/v1.22.0...v1.23.0) (2025-12-19)
+
+
+### Features 🌟
+
+* update wowfile.txt ([#153](https://github.com/jharvey10/test-repo/issues/153)) ([50bfe4b](https://github.com/jharvey10/test-repo/commit/50bfe4bb5128667e83d6db931b1951be4de11b25))
+
 ## [1.22.0](https://github.com/jharvey10/test-repo/compare/v1.21.0...v1.22.0) (2025-12-19)
 
 
