@@ -77,8 +77,9 @@ func main() {
 // It extracts commit SHAs from each line and looks up the author + co-authors.
 func addContributorInfo(ctx context.Context, client *gh.Client, body string) string {
 	lines := strings.Split(body, "\n")
-	// Match commit SHA at end of line: "... (abc1234)" or "... (abc1234567890...)"
-	commitPattern := regexp.MustCompile(`\(([a-f0-9]{7,40})\)\s*$`)
+	// Match commit SHA in markdown link format: "([abc1234](https://github.com/.../commit/...))"
+	// This captures the short SHA from the link text
+	commitPattern := regexp.MustCompile(`\(\[([a-f0-9]{7,40})\]\(https://github\.com/[^)]+\)\)\s*$`)
 
 	for i, line := range lines {
 		matches := commitPattern.FindStringSubmatch(line)
