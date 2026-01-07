@@ -66,9 +66,9 @@ async function main() {
     console.log('Creating pull requests');
 
     const prs = await manifest.createPullRequests();
-    outputPRs(prs);
+    outputPullRequests(prs);
 
-    await applyPullRequestCustomizations(github, inputs, prs);
+    await applyPullRequestCustomizations(inputs, prs);
   }
 }
 
@@ -79,7 +79,7 @@ async function main() {
  * @param {Object} inputs - The input parameters
  * @param {PullRequest[]} prs - The pull requests to update
  */
-async function applyPullRequestCustomizations(github, inputs, prs) {
+async function applyPullRequestCustomizations(inputs, prs) {
   const definedPrs = prs.filter(pr => pr !== undefined);
   if (definedPrs.length === 0) {
     return;
@@ -142,7 +142,7 @@ function outputReleases(releases) {
   console.log(`paths_released=${JSON.stringify(pathsReleased)}`);
 }
 
-function outputPRs(prs) {
+function outputPullRequests(prs) {
   prs = prs.filter(pr => pr !== undefined);
   console.log(`prs_created=${prs.length > 0}`);
   if (prs.length) {
