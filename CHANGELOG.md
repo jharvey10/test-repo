@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.26.0](https://github.com/jharvey10/test-repo/compare/v1.25.0...v1.26.0) (2026-01-07)
+
+
+### Features 🌟
+
+* Add a new feature change to wowfile.txt ([#161](https://github.com/jharvey10/test-repo/issues/161)) ([e6a4c72](https://github.com/jharvey10/test-repo/commit/e6a4c72e1e1ff55fe00b20a9929e7c282e3d2f30))
+
+
+### Bug Fixes 🐛
+
+* Add a line indicating a needed fix [backport] ([#164](https://github.com/jharvey10/test-repo/issues/164)) ([146712b](https://github.com/jharvey10/test-repo/commit/146712bfecdb7f9c37933c179e09be7341cb2155))
+
 ## [1.24.0](https://github.com/jharvey10/test-repo/compare/v1.23.0...v1.24.0) (2025-12-19)
 
 
