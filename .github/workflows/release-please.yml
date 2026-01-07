@@ -16,11 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Generate token 🔐
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1.12.0
         id: app-token
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: jharvey10
+          repositories: test-repo
 
       - name: Checkout repository 🛎️
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4

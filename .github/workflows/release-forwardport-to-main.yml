@@ -30,11 +30,13 @@ jobs:
         Please investigate and manually forwardport if needed.
     steps:
       - name: Generate token 🔐
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1.12.0
         id: app-token
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: jharvey10
+          repositories: test-repo
 
       - name: Checkout repository 🛎️
         uses: actions/checkout@v4
@@ -53,7 +55,7 @@ jobs:
         id: forwardport
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-          # APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
         run: |
           cd tools
           go run ./release/forwardport-release-to-main --pr "${{ github.event.pull_request.number }}"
@@ -65,7 +67,7 @@ jobs:
           method: chat.postMessage
           payload: |
             {
-              "channel": "C09P31RJ26P",
+              "channel": "ABC123",
               "text": ${{ toJSON(env.SLACK_MESSAGE) }},
               "blocks": [
                 {
