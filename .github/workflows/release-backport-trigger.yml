@@ -15,7 +15,7 @@ jobs:
     # - PR is merged
     # - Has at least one backport label
     if: >
-      github.repository == 'grafana/alloy' &&
+      github.repository == 'jharvey10/test-repo' &&
       github.event.pull_request.merged == true &&
       contains(toJSON(github.event.pull_request.labels.*.name), 'backport/')
     runs-on: ubuntu-latest
