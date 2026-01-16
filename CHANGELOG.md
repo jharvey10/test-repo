@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.27.0](https://github.com/jharvey10/test-repo/compare/v1.26.1...v1.27.0) (2026-01-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* **otelcol:** Upgrade OTel Collector components to v0.142.0
+* **otelcol.receiver.kafka:** The global `topic` attribute has been deleted; use the `topics` attributes inside the `logs`, `metrics`, and `traces` blocks instead.
+
+### Features 🌟
+
+* **beyla.ebpf:** Upgrade Beyla to v2.8.5 ([32ec5b6](https://github.com/jharvey10/test-repo/commit/32ec5b64e856f361ecb74743f43d24bd0261e123))
+* **otelcol.receiver.kafka:** Deprecate the `topic` attribute inside the `logs`, `metrics`, and `traces` blocks in favour of a new `topics` attribute. ([32ec5b6](https://github.com/jharvey10/test-repo/commit/32ec5b64e856f361ecb74743f43d24bd0261e123))
+* **otelcol.receiver.kafka:** Remove the global `topic` attribute ([32ec5b6](https://github.com/jharvey10/test-repo/commit/32ec5b64e856f361ecb74743f43d24bd0261e123))
+* **otelcol:** Upgrade OTel Collector components to v0.142.0 ([32ec5b6](https://github.com/jharvey10/test-repo/commit/32ec5b64e856f361ecb74743f43d24bd0261e123))
+
 ## [1.26.1](https://github.com/jharvey10/test-repo/compare/v1.26.0...v1.26.1) (2026-01-07)
 
 
