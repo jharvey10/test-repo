@@ -14,10 +14,18 @@ type Registration struct {
 	Name        string
 	Description string
 	Build       func() Component
+	Version     string
 }
 
 // registry holds all registered components.
 var registry = make(map[string]Registration)
+
+var Wow = Registration{
+	Name:        "wow",
+	Description: "Wow",
+	Build:       func() Component { return nil },
+	Version:     "1.2.3", // x-release-please-version
+}
 
 // Register adds an individual component to the registry.
 func Register(reg Registration) {

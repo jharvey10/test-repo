@@ -26,6 +26,10 @@
         {
           "type": "generic",
           "path": "docs/sources/_index.md"
+        },
+        {
+          "type": "generic",
+          "path": "internal/component/component.go"
         }
       ]
     }
