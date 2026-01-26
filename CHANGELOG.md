@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.2](https://github.com/jharvey10/test-repo/compare/v1.26.1...v1.26.2) (2026-01-26)
+
+
+### Bug Fixes 🐛
+
+* Add 'okok' line to wowfile.txt ([#170](https://github.com/jharvey10/test-repo/issues/170)) ([ecbd498](https://github.com/jharvey10/test-repo/commit/ecbd49806547de060a27c41a3d8d8605b1b9b735))
+
 ## [1.26.1](https://github.com/jharvey10/test-repo/compare/v1.26.0...v1.26.1) (2026-01-07)
 
 
