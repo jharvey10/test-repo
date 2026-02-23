@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.27.0](https://github.com/jharvey10/test-repo/compare/v1.26.2...v1.27.0) (2026-02-23)
+
+
+### Features 🌟
+
+* Add new features to wowfile ([#176](https://github.com/jharvey10/test-repo/issues/176)) ([445b7ab](https://github.com/jharvey10/test-repo/commit/445b7ab51ab841fe30d3c8773f8a00caeb596763))
+
 ## [1.26.2](https://github.com/jharvey10/test-repo/compare/v1.26.1...v1.26.2) (2026-02-23)
 
 
