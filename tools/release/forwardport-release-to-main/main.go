@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	zizmorCheckName = "zizmor"
+	zizmorCheckName = "Validate PR title"
 	zizmorTimeout   = 5 * time.Minute
 )
 
