@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.28.0](https://github.com/jharvey10/test-repo/compare/v1.27.1...v1.28.0) (2026-02-26)
+
+
+### Features 🌟
+
+* Add a new line with a random thing ([#185](https://github.com/jharvey10/test-repo/issues/185)) ([f061493](https://github.com/jharvey10/test-repo/commit/f0614934fd63a0c5ffd32ee3f37153b2987560b0))
+
 ## [1.27.1](https://github.com/jharvey10/test-repo/compare/v1.27.0...v1.27.1) (2026-02-26)
 
 
