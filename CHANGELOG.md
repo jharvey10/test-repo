@@ -1,5 +1,101 @@
 # Changelog
 
+## [1.14.0](https://github.com/jharvey10/test-repo/compare/v1.28.0...v1.14.0) (2026-02-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* This thing was breaking because it did a breaking thing. You will need to update your stuff for it to work.
+* The way it works is different so you need to adjust your stuff.
+* This is a breaking change and you should react to it by updating your thing to use the new stuff.
+* here is the extended reason for why this is a breaking change.
+
+### Features 🌟
+
+* add 'hello again' to wowfile.txt ([6b902bc](https://github.com/jharvey10/test-repo/commit/6b902bc98a393155a69b5a7e9547f4b399474786))
+* Add a new feature change to wowfile.txt ([#161](https://github.com/jharvey10/test-repo/issues/161)) ([e6a4c72](https://github.com/jharvey10/test-repo/commit/e6a4c72e1e1ff55fe00b20a9929e7c282e3d2f30))
+* add a new feature to wowfile.txt ([#115](https://github.com/jharvey10/test-repo/issues/115)) ([e423e6d](https://github.com/jharvey10/test-repo/commit/e423e6dcb78466677ea9c2016f2ffc1251564779))
+* add a new feature to wowfile.txt ([#121](https://github.com/jharvey10/test-repo/issues/121)) ([92e303a](https://github.com/jharvey10/test-repo/commit/92e303aa61b54fb56fefa1604b278337ced8ce6f))
+* Add a new line to wowfile.txt ([#160](https://github.com/jharvey10/test-repo/issues/160)) ([d319a76](https://github.com/jharvey10/test-repo/commit/d319a76e121e98094167dab4920ce83f1a8ff958))
+* Add a new line with a random thing ([#185](https://github.com/jharvey10/test-repo/issues/185)) ([f061493](https://github.com/jharvey10/test-repo/commit/f0614934fd63a0c5ffd32ee3f37153b2987560b0))
+* Add new features to wowfile ([#176](https://github.com/jharvey10/test-repo/issues/176)) ([445b7ab](https://github.com/jharvey10/test-repo/commit/445b7ab51ab841fe30d3c8773f8a00caeb596763))
+* add new line to wowfile.txt ([#143](https://github.com/jharvey10/test-repo/issues/143)) ([2a5701f](https://github.com/jharvey10/test-repo/commit/2a5701f9dfc833af57e8f1888dfb67ad360eaf2d))
+* Add one more big change to wowfile.txt ([#182](https://github.com/jharvey10/test-repo/issues/182)) ([cf33282](https://github.com/jharvey10/test-repo/commit/cf33282e4d55dae136c5868a0886be0d8a53750a))
+* adjusting a thing ([ae0367a](https://github.com/jharvey10/test-repo/commit/ae0367a828879c730301c02cb74b8bbfd13f47c6))
+* do something cool with the alloy command ([#88](https://github.com/jharvey10/test-repo/issues/88)) ([a9892f3](https://github.com/jharvey10/test-repo/commit/a9892f33ce65c73c08fc11785ae287660121160a))
+* document breaking change in wowfile.txt ([#105](https://github.com/jharvey10/test-repo/issues/105)) ([d647147](https://github.com/jharvey10/test-repo/commit/d647147d38c26fa1fae714a6c495f3bd1095b6aa))
+* new things ([c96d84b](https://github.com/jharvey10/test-repo/commit/c96d84bfaf17463a7105ff4bf2483ae96f89a832))
+* normal feature stuff wow ([#32](https://github.com/jharvey10/test-repo/issues/32)) ([6605e1b](https://github.com/jharvey10/test-repo/commit/6605e1b247c322a902b8d48f854c2edaef6356c0))
+* slim down content in wowfile.txt ([#149](https://github.com/jharvey10/test-repo/issues/149)) ([8a8d2cd](https://github.com/jharvey10/test-repo/commit/8a8d2cd5f954cfa33de72b11b8a986f174844d57))
+* the wowfile again ([#92](https://github.com/jharvey10/test-repo/issues/92)) ([0666d8e](https://github.com/jharvey10/test-repo/commit/0666d8e725dd46b190b64cf5a614906823a2fd12))
+* try out helm stuff ([#25](https://github.com/jharvey10/test-repo/issues/25)) ([5a6f6ac](https://github.com/jharvey10/test-repo/commit/5a6f6ac7aa0130e48840018b1921a741ed93e1ef))
+* update the wowfile ([#3](https://github.com/jharvey10/test-repo/issues/3)) ([31e73fc](https://github.com/jharvey10/test-repo/commit/31e73fcd3d5db9435e4f05c45998a371e231f9de))
+* update wowfile.txt ([#104](https://github.com/jharvey10/test-repo/issues/104)) ([fd65642](https://github.com/jharvey10/test-repo/commit/fd656427c84136d7cd30a24969a61853583d3292))
+* update wowfile.txt ([#153](https://github.com/jharvey10/test-repo/issues/153)) ([50bfe4b](https://github.com/jharvey10/test-repo/commit/50bfe4bb5128667e83d6db931b1951be4de11b25))
+* wow it's some great stuff ([2242d3f](https://github.com/jharvey10/test-repo/commit/2242d3f48fb16babccba8b946425e26c22859d67))
+* wow some stuff for the release ([#145](https://github.com/jharvey10/test-repo/issues/145)) ([7e0ca20](https://github.com/jharvey10/test-repo/commit/7e0ca20d493ebcda92299d0c84a62fb70a9cb8d5))
+* wow some stuff for the release ([#145](https://github.com/jharvey10/test-repo/issues/145)) ([4e08c9b](https://github.com/jharvey10/test-repo/commit/4e08c9b49e9f54b36a6c08856cf0db9fd3125269))
+
+
+### Bug Fixes 🐛
+
+* actual change in the rc wow ([#46](https://github.com/jharvey10/test-repo/issues/46)) ([3d606cd](https://github.com/jharvey10/test-repo/commit/3d606cd9a5135639b58d07bd7f630657cdd711a6))
+* Add 'mmmm' to wowfile.txt ([#166](https://github.com/jharvey10/test-repo/issues/166)) ([10bd377](https://github.com/jharvey10/test-repo/commit/10bd3777b8f32eb3d4dfd13545c3099bac0c59ac))
+* Add 'okok' line to wowfile.txt ([#170](https://github.com/jharvey10/test-repo/issues/170)) ([ecbd498](https://github.com/jharvey10/test-repo/commit/ecbd49806547de060a27c41a3d8d8605b1b9b735))
+* Add 'okok' line to wowfile.txt [backport] ([#171](https://github.com/jharvey10/test-repo/issues/171)) ([32ec5b6](https://github.com/jharvey10/test-repo/commit/32ec5b64e856f361ecb74743f43d24bd0261e123))
+* add a fix to wowfile.txt ([#117](https://github.com/jharvey10/test-repo/issues/117)) ([39c9d21](https://github.com/jharvey10/test-repo/commit/39c9d21344e7112a7d2df59efa9cd50886195e96))
+* Add a line indicating a needed fix ([#163](https://github.com/jharvey10/test-repo/issues/163)) ([b4cae4b](https://github.com/jharvey10/test-repo/commit/b4cae4b2b13c983d5d2165964cdec5058bb4f80c))
+* Add a line indicating a needed fix [backport] ([#164](https://github.com/jharvey10/test-repo/issues/164)) ([146712b](https://github.com/jharvey10/test-repo/commit/146712bfecdb7f9c37933c179e09be7341cb2155))
+* Add backport fix note to wowfile.txt ([#180](https://github.com/jharvey10/test-repo/issues/180)) ([b535ad6](https://github.com/jharvey10/test-repo/commit/b535ad697a6be7a355f3a31747eec2ba80a90548))
+* Add backport fix note to wowfile.txt [backport] ([#181](https://github.com/jharvey10/test-repo/issues/181)) ([fa01d6f](https://github.com/jharvey10/test-repo/commit/fa01d6fbc4ea253f9cf4800ed85a8f6757a76d9c))
+* add emoji where we need it ([#71](https://github.com/jharvey10/test-repo/issues/71)) ([57a1e6a](https://github.com/jharvey10/test-repo/commit/57a1e6a88cdcebd1296653283156b3044f7c599c))
+* add hotfix note for version 1.16 ([#97](https://github.com/jharvey10/test-repo/issues/97)) ([7c4f423](https://github.com/jharvey10/test-repo/commit/7c4f42385d1abb7ab9017584ad7a6a768987c542))
+* add hotfix note for version 1.16 ([#97](https://github.com/jharvey10/test-repo/issues/97)) ([891ea32](https://github.com/jharvey10/test-repo/commit/891ea326878b09748673575153f6d2521c244c84))
+* Add new line to wowfile.txt ([#167](https://github.com/jharvey10/test-repo/issues/167)) ([4da0d8b](https://github.com/jharvey10/test-repo/commit/4da0d8bbaa8e81e02b348d7e2783685685c8f322))
+* Add new line to wowfile.txt [backport] ([#168](https://github.com/jharvey10/test-repo/issues/168)) ([f395084](https://github.com/jharvey10/test-repo/commit/f3950845e9db4aece8a0046dfc86e263c74876d1))
+* add note about cherry picking a change before release ([#55](https://github.com/jharvey10/test-repo/issues/55)) ([1f89044](https://github.com/jharvey10/test-repo/commit/1f89044798cdb6e1a9241e7f1eabd735be428e0c))
+* add note about normal development on main branch ([#94](https://github.com/jharvey10/test-repo/issues/94)) ([070e0dc](https://github.com/jharvey10/test-repo/commit/070e0dc0d64336fc43a000ea1816373bcd2fd9a0))
+* add note about normal development on main branch ([#94](https://github.com/jharvey10/test-repo/issues/94)) ([8bfacc4](https://github.com/jharvey10/test-repo/commit/8bfacc4e87179381a92271bf86ffb9eea42f67a3))
+* add note about tiny change in wowfile.txt ([#111](https://github.com/jharvey10/test-repo/issues/111)) ([988aeba](https://github.com/jharvey10/test-repo/commit/988aeba7efc0580280118b583b7a6ba315afa4fc))
+* add note about tiny change in wowfile.txt ([#111](https://github.com/jharvey10/test-repo/issues/111)) ([e32172b](https://github.com/jharvey10/test-repo/commit/e32172b8ab20329cbee4cd7f480f3a0684e4b6a3))
+* adjust alloy startup message ([#10](https://github.com/jharvey10/test-repo/issues/10)) ([96a3130](https://github.com/jharvey10/test-repo/commit/96a31303135527fbd5fd6464def38b98b646a8f4))
+* adjust release please workflows and release enrichment ([#14](https://github.com/jharvey10/test-repo/issues/14)) ([d6cf31c](https://github.com/jharvey10/test-repo/commit/d6cf31c60f26e80064c4b061b234c4de631074da))
+* adjust wowfile ([#89](https://github.com/jharvey10/test-repo/issues/89)) ([bd55bb7](https://github.com/jharvey10/test-repo/commit/bd55bb7c46c9d5edf8ae06753e164ea6ec911347))
+* broken enrichment workflow ([#16](https://github.com/jharvey10/test-repo/issues/16)) ([8299b62](https://github.com/jharvey10/test-repo/commit/8299b62cb3527d551729c836a64701fd0be0bd07))
+* celebratory line to wowfile.txt ([#139](https://github.com/jharvey10/test-repo/issues/139)) ([d130250](https://github.com/jharvey10/test-repo/commit/d130250a73f35525825bc253f32858583a969bb3))
+* celebratory line to wowfile.txt ([#139](https://github.com/jharvey10/test-repo/issues/139)) ([52cbddb](https://github.com/jharvey10/test-repo/commit/52cbddba6c18fa436ab60102daa396f6cda3c3ef))
+* component doc thing ([#78](https://github.com/jharvey10/test-repo/issues/78)) ([79120c4](https://github.com/jharvey10/test-repo/commit/79120c473a4fa103a5f321e95e3c9b4e3911b704))
+* docs for runner ([#116](https://github.com/jharvey10/test-repo/issues/116)) ([00edff7](https://github.com/jharvey10/test-repo/commit/00edff722b0acf43d1d591f8de1b233a26dfab49))
+* it's a fix this time ([#147](https://github.com/jharvey10/test-repo/issues/147)) ([6bcebb1](https://github.com/jharvey10/test-repo/commit/6bcebb1eb7bc908cacc94d57d3be8b379d683d00))
+* it's a fix this time ([#147](https://github.com/jharvey10/test-repo/issues/147)) ([4c867c4](https://github.com/jharvey10/test-repo/commit/4c867c4dfa5b1b467537dccd9c5960fc71470d87))
+* its a bad fix ([#155](https://github.com/jharvey10/test-repo/issues/155)) ([640bca7](https://github.com/jharvey10/test-repo/commit/640bca73f609eb5d3d2f6beb23c0d5ca5406e91f))
+* its a fix ([#150](https://github.com/jharvey10/test-repo/issues/150)) ([e5c84ed](https://github.com/jharvey10/test-repo/commit/e5c84ed7624282f782e0bb830e71602ab4a70cfc))
+* its a fix ([#150](https://github.com/jharvey10/test-repo/issues/150)) ([7786e37](https://github.com/jharvey10/test-repo/commit/7786e3784d514f136a4ad0d859788082a4785be9))
+* more broken enrichment stuff ([#18](https://github.com/jharvey10/test-repo/issues/18)) ([f01d555](https://github.com/jharvey10/test-repo/commit/f01d5554bb590fd9c73362e921ee389b829d8da5))
+* one more fix ([#130](https://github.com/jharvey10/test-repo/issues/130)) ([2c85849](https://github.com/jharvey10/test-repo/commit/2c858492f9718b8167e35bd1705502fd966fadbb))
+* one more fix ([#130](https://github.com/jharvey10/test-repo/issues/130)) ([fb85a8c](https://github.com/jharvey10/test-repo/commit/fb85a8cae5d3d6e9e33bd59ad95fc78609d33f77))
+* oops we needed an rc fix ([e48d81f](https://github.com/jharvey10/test-repo/commit/e48d81f311b633df5464dd9f54c74ae72a60780a))
+* **prometheus:** improve docs ([#84](https://github.com/jharvey10/test-repo/issues/84)) ([85cacc9](https://github.com/jharvey10/test-repo/commit/85cacc91bdf0ff0bd569d19a9f88c95ca06391ca))
+* the new feature bugfix ([#124](https://github.com/jharvey10/test-repo/issues/124)) ([527e12f](https://github.com/jharvey10/test-repo/commit/527e12f82ab6a2a55c4bb45d35fcf0d13f3deea4))
+* the new feature bugfix ([#124](https://github.com/jharvey10/test-repo/issues/124)) ([c7d686e](https://github.com/jharvey10/test-repo/commit/c7d686e8fa7e0f94a142ab9c12b8c2175a8a8b13))
+* trying out release enrichment ([#11](https://github.com/jharvey10/test-repo/issues/11)) ([e8124ab](https://github.com/jharvey10/test-repo/commit/e8124abb8a3927574459dc7a55b97a837a374aa3))
+* update bugfix message in wowfile.txt ([#126](https://github.com/jharvey10/test-repo/issues/126)) ([c75a7d4](https://github.com/jharvey10/test-repo/commit/c75a7d4d47d2f3a114f0299356b77c53bb57c506))
+* update bugfix message in wowfile.txt ([#126](https://github.com/jharvey10/test-repo/issues/126)) ([7f4cc18](https://github.com/jharvey10/test-repo/commit/7f4cc18135ebde56b6df4e0345fffa0c5e7546f2))
+* update feature description with fix details ([#119](https://github.com/jharvey10/test-repo/issues/119)) ([3372a66](https://github.com/jharvey10/test-repo/commit/3372a6691850c8a0df2f6ac70fd37f61653f5034))
+* update feature description with fix details ([#119](https://github.com/jharvey10/test-repo/issues/119)) ([7f3b7af](https://github.com/jharvey10/test-repo/commit/7f3b7afea6c76913cbd2185a20606896b89c08a0))
+* update testing line in wowfile.txt ([#158](https://github.com/jharvey10/test-repo/issues/158)) ([8e66e79](https://github.com/jharvey10/test-repo/commit/8e66e792645e4d10b93a5ad961736e88c5b98531))
+* update the wowfile again ([9aaa571](https://github.com/jharvey10/test-repo/commit/9aaa5710690e83b500368a721353c5bd1f384daf))
+* update wowfile.txt ([#134](https://github.com/jharvey10/test-repo/issues/134)) ([0614669](https://github.com/jharvey10/test-repo/commit/06146692c69748c395d47da5e4327a3f890e6ec2))
+* update wowfile.txt ([#136](https://github.com/jharvey10/test-repo/issues/136)) ([e0bcfd3](https://github.com/jharvey10/test-repo/commit/e0bcfd31d1e1b890e16ab45c5fe89c5fd241ece0))
+* update wowfile.txt ([#136](https://github.com/jharvey10/test-repo/issues/136)) ([f775a10](https://github.com/jharvey10/test-repo/commit/f775a101fd4aaaa1b7c73b62d3cc3bd57c314ac1))
+* Update wowfile.txt ([#165](https://github.com/jharvey10/test-repo/issues/165)) ([7a041f8](https://github.com/jharvey10/test-repo/commit/7a041f8c3ec864ad9a7bb586d1fc70e6e44805de))
+* update wowfile.txt with a bugfix ([#122](https://github.com/jharvey10/test-repo/issues/122)) ([3c8d27a](https://github.com/jharvey10/test-repo/commit/3c8d27a954cf63b39fecd5760deb46894f18f1c2))
+
+
+### Chores
+
+* release 1.14.0 ([#22](https://github.com/jharvey10/test-repo/issues/22)) ([0bb8f94](https://github.com/jharvey10/test-repo/commit/0bb8f94942c6940c7d859edfa83c8cc376ef6e7c))
+
 ## [1.28.0](https://github.com/jharvey10/test-repo/compare/v1.27.1...v1.28.0) (2026-02-26)
 
 
