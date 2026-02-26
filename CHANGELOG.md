@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.27.1](https://github.com/jharvey10/test-repo/compare/v1.27.0...v1.27.1) (2026-02-26)
+
+
+### Bug Fixes 🐛
+
+* Add backport fix note to wowfile.txt [backport] ([#181](https://github.com/jharvey10/test-repo/issues/181)) ([fa01d6f](https://github.com/jharvey10/test-repo/commit/fa01d6fbc4ea253f9cf4800ed85a8f6757a76d9c))
+
 ## [1.27.0](https://github.com/jharvey10/test-repo/compare/v1.26.2...v1.27.0) (2026-02-23)
 
 

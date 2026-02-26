@@ -24,7 +24,7 @@ var Wow = Registration{
 	Name:        "wow",
 	Description: "Wow",
 	Build:       func() Component { return nil },
-	Version:     "1.27.0", // x-release-please-version
+	Version:     "1.27.1", // x-release-please-version
 }
 
 // Register adds an individual component to the registry.
