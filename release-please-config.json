@@ -16,6 +16,7 @@
   ],
   "always-update": true,
   "draft-pull-request": true,
+  "draft": true,
   "pull-request-title-pattern": "chore${scope}: Release${component} ${version}",
   "packages": {
     ".": {
