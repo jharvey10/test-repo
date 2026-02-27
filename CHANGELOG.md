@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.29.0](https://github.com/jharvey10/test-repo/compare/v1.28.0...v1.29.0) (2026-02-27)
+
+
+### Features 🌟
+
+* Add greeting to wowfile.txt ([#191](https://github.com/jharvey10/test-repo/issues/191)) ([204cb30](https://github.com/jharvey10/test-repo/commit/204cb3040d435931e511b3f4b8e07df79d2ed369))
+
 ## [1.28.0](https://github.com/jharvey10/test-repo/compare/v1.27.1...v1.28.0) (2026-02-26)
 
 
