@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	zizmorCheckName = "Validate PR title"
+	zizmorCheckName = "Validate PR title" // this is just for testing in test-repo
 	zizmorTimeout   = 5 * time.Minute
 )
 
