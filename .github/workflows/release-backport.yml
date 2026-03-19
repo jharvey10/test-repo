@@ -22,7 +22,7 @@ jobs:
   backport:
     # Only run if the trigger workflow succeeded.
     if: >
-      github.repository == 'jharvey10/test-repo' &&
+      github.repository == 'grafana/alloy' &&
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
@@ -113,5 +113,5 @@ jobs:
             echo "🍒 Processing backport for label: $label"
             go run ./release/backport \
               --pr "${PR_NUMBER}" \
-              --label "$label"
+              --label "$label" || echo "⚠️ Backport for $label failed, moving to next..."
           done
