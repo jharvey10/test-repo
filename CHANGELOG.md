@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.30.0](https://github.com/jharvey10/test-repo/compare/v1.29.0...v1.30.0) (2026-03-20)
+
+
+### Features 🌟
+
+* Add a feature to readme ([#202](https://github.com/jharvey10/test-repo/issues/202)) ([260dce0](https://github.com/jharvey10/test-repo/commit/260dce0cc5a306526868db314146a843a06850be))
+
+
+### Bug Fixes 🐛
+
+* Update README with extra description ([#200](https://github.com/jharvey10/test-repo/issues/200)) ([6c157d6](https://github.com/jharvey10/test-repo/commit/6c157d6b2af4e5829473cf49c1550da82c4f50bb))
+
 ## [1.29.0](https://github.com/jharvey10/test-repo/compare/v1.28.0...v1.29.0) (2026-03-20)
 
 
