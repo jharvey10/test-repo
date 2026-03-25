@@ -1,4 +1,4 @@
-name: Code Freeze Guard
+name: Release Semantics - Code Freeze
 
 on:
   pull_request:
@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 jobs:
-  check_freeze:
+  check:
     name: Check for code freeze 🥶
     runs-on: ubuntu-latest
     steps:

@@ -1,4 +1,4 @@
-name: Wrong Version on Branch Guard
+name: Release Semantics - Branch Versions
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  check_version:
+  check:
     name: No patch releases on main
     runs-on: ubuntu-latest
     steps:
