@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.31.0](https://github.com/jharvey10/test-repo/compare/v1.30.0...v1.31.0) (2026-03-25)
+
+
+### Features 🌟
+
+* Update email line in wowfile.txt ([#203](https://github.com/jharvey10/test-repo/issues/203)) ([13cb153](https://github.com/jharvey10/test-repo/commit/13cb1538acf5156c973dd30df16c802c16c671e6))
+
+
+### Bug Fixes 🐛
+
+* Critical another thing ([#211](https://github.com/jharvey10/test-repo/issues/211)) ([6ab1ac5](https://github.com/jharvey10/test-repo/commit/6ab1ac5e90440c0bb445b43cc54adc97d378c5cc))
+* The thing is fixed ([#210](https://github.com/jharvey10/test-repo/issues/210)) ([811659f](https://github.com/jharvey10/test-repo/commit/811659fad294409b80c31ecf4a1688660d032957))
+
 ## [1.30.0](https://github.com/jharvey10/test-repo/compare/v1.29.0...v1.30.0) (2026-03-25)
 
 
