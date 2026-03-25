@@ -1,4 +1,4 @@
-name: Release Semantics - Wrong Version on Branch Guard
+name: Release Semantics
 
 on:
   pull_request:

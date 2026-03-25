@@ -1,4 +1,4 @@
-name: Release Semantics - PR Title Lint
+name: Release Semantics
 
 on:
   pull_request:
