@@ -45,13 +45,16 @@ jobs:
             exit 0
           fi
 
-          # Scope the tag search to the target branch's version series.
-          # On release/vX.Y, only consider vX.Y.0 tags; on main, consider all minor versions.
+          # Determine which tags to consider based on the target branch.
+          # On main: only minor-release tags (vX.Y.0 / vX.Y.0-rc.N).
+          # On release/vX.Y: all tags in that series (vX.Y.Z / vX.Y.Z-rc.N).
           if echo "$BASE_BRANCH" | grep -qE '^release/v[0-9]+\.[0-9]+$'; then
             BRANCH_VERSION=$(echo "$BASE_BRANCH" | grep -oE '[0-9]+\.[0-9]+')
-            TAG_FILTER="^v${BRANCH_VERSION}\.0(-rc\.[0-9]+)?$"
+            TAG_FILTER="^v${BRANCH_VERSION}\.[0-9]+(-rc\.[0-9]+)?$"
+            TAG_LABEL="v${BRANCH_VERSION} series"
           else
             TAG_FILTER='^v[0-9]+\.[0-9]+\.0(-rc\.[0-9]+)?$'
+            TAG_LABEL="minor-version"
           fi
 
           LATEST_TAG=$(gh api graphql -f query='
@@ -67,14 +70,14 @@ jobs:
             | head -1)
 
           if [ -z "$LATEST_TAG" ]; then
-            echo "✅ No minor-version tags found. Not in RC mode."
+            echo "✅ No $TAG_LABEL tags found. Not in RC mode."
             exit 0
           fi
 
-          echo "Most recent minor-version tag: $LATEST_TAG"
+          echo "Most recent $TAG_LABEL tag: $LATEST_TAG"
 
           if echo "$LATEST_TAG" | grep -qE '\-rc\.[0-9]+$'; then
-            echo "❌ Code freeze is active. The most recent minor-version tag is $LATEST_TAG."
+            echo "❌ Code freeze is active. The most recent $TAG_LABEL tag is $LATEST_TAG."
             echo ""
             echo "An RC has been published and $BASE_BRANCH is frozen until the final release."
             echo "Only critical fixes approved by the release manager may be merged."
@@ -82,4 +85,4 @@ jobs:
             exit 1
           fi
 
-          echo "✅ Latest minor-version tag is $LATEST_TAG (final release). No code freeze."
+          echo "✅ Latest $TAG_LABEL tag is $LATEST_TAG (final release). No code freeze."
