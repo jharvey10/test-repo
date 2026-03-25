@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.1](https://github.com/jharvey10/test-repo/compare/v1.31.0...v1.31.1) (2026-03-25)
+
+
+### Bug Fixes 🐛
+
+* Wowfile needs updates again [backport] ([#216](https://github.com/jharvey10/test-repo/issues/216)) ([ee3088a](https://github.com/jharvey10/test-repo/commit/ee3088ae6197dc894a0c4d522572894e292f795c))
+
 ## [1.31.0](https://github.com/jharvey10/test-repo/compare/v1.30.0...v1.31.0) (2026-03-25)
 
 
