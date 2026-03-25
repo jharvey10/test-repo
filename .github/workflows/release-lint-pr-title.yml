@@ -1,4 +1,4 @@
-name: Release Semantics
+name: Release Semantics - PR Title
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   lint:
-    name: Validate PR title
+    name: Lint PR title
     runs-on: ubuntu-latest
     steps:
       - name: Validate PR title 🔎

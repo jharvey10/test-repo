@@ -1,4 +1,4 @@
-name: Release Semantics
+name: Release Semantics - Branch Versions
 
 on:
   pull_request:
