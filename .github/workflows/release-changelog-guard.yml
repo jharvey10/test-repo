@@ -1,4 +1,4 @@
-name: Changelog Guard
+name: Release Semantics - Changelog Guard
 on:
   pull_request:
 
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  check_changelog:
+  check:
     name: Check CHANGELOG.md modifications
     runs-on: ubuntu-latest
     steps:
