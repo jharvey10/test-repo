@@ -22,7 +22,7 @@ jobs:
   backport:
     # Only run if the trigger workflow succeeded.
     if: >
-      github.repository == 'grafana/alloy' &&
+      github.repository == 'jharvey10/test-repo' &&
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
