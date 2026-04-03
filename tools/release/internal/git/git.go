@@ -109,7 +109,7 @@ func CherryPick(sha string, shouldCommit bool) error {
 	if !shouldCommit {
 		args = append(args, "--no-commit")
 	} else {
-		args = append(args, "-x") // no long form; adds "(cherry picked from commit ...)" reference
+		args = append(args, "-x") // Adds "(cherry picked from commit ...)" reference
 	}
 	args = append(args, sha)
 	if err := run(args...); err != nil {
@@ -129,8 +129,8 @@ func ConfigureUser(name, email string) error {
 	return nil
 }
 
-// CreateBranchFrom creates a new branch from a base ref and checks it out.
-func CreateBranchFrom(branch, base string) error {
+// CheckoutNewBranch creates a new branch from a base ref and checks it out.
+func CheckoutNewBranch(branch, base string) error {
 	if err := validateBranchName(branch); err != nil {
 		return err
 	}
@@ -140,7 +140,7 @@ func CreateBranchFrom(branch, base string) error {
 		return fmt.Errorf("invalid base: %w", err)
 	}
 	if err := run("git", "checkout", "-b", branch, base); err != nil {
-		return fmt.Errorf("creating branch %s from %s: %w", branch, base, err)
+		return fmt.Errorf("checking out new branch %s based on %s: %w", branch, base, err)
 	}
 	return nil
 }
@@ -186,6 +186,44 @@ func MergeFFOnly(branch string) error {
 	}
 	if err := run("git", "merge", "--ff-only", branch); err != nil {
 		return fmt.Errorf("merging branch %s (ff-only): %w", branch, err)
+	}
+	return nil
+}
+
+// CurrentBranch returns the name of the currently checked-out branch.
+func CurrentBranch() (string, error) {
+	out, err := runOutput("git", "rev-parse", "--abbrev-ref", "HEAD")
+	if err != nil {
+		return "", fmt.Errorf("getting current branch: %w", err)
+	}
+	return out, nil
+}
+
+// AbortCherryPick attempts to abort an in-progress cherry-pick. Output is
+// suppressed so callers can use this best-effort without noisy errors when no
+// cherry-pick is in progress.
+func AbortCherryPick() error {
+	if err := exec.Command("git", "cherry-pick", "--abort").Run(); err != nil {
+		return fmt.Errorf("aborting cherry-pick: %w", err)
+	}
+	return nil
+}
+
+// ResetHard resets the index and working tree to HEAD, discarding all changes.
+func ResetHard() error {
+	if err := run("git", "reset", "--hard"); err != nil {
+		return fmt.Errorf("resetting working copy: %w", err)
+	}
+	return nil
+}
+
+// DeleteLocalBranch force-deletes a local branch.
+func DeleteLocalBranch(branch string) error {
+	if err := validateBranchName(branch); err != nil {
+		return err
+	}
+	if err := run("git", "branch", "-D", branch); err != nil {
+		return fmt.Errorf("deleting local branch %s: %w", branch, err)
 	}
 	return nil
 }
