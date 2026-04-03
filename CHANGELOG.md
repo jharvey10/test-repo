@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.32.1](https://github.com/jharvey10/test-repo/compare/v1.32.0...v1.32.1) (2026-04-03)
+
+
+### Bug Fixes 🐛
+
+* Add another amazing thing to wowfile.txt [backport] ([#234](https://github.com/jharvey10/test-repo/issues/234)) ([4496702](https://github.com/jharvey10/test-repo/commit/44967028947744073d2df5a6758c629d9660e9eb))
+* More great features [backport] ([#229](https://github.com/jharvey10/test-repo/issues/229)) ([2d366c5](https://github.com/jharvey10/test-repo/commit/2d366c565a1b99dd49b565cf73e6379e86692eeb))
+* Update wowfile.txt [backport] ([#232](https://github.com/jharvey10/test-repo/issues/232)) ([2f90e0b](https://github.com/jharvey10/test-repo/commit/2f90e0ba2196192800eff6d5628c186935ccc8a8))
+
 ## [1.32.0](https://github.com/jharvey10/test-repo/compare/v1.31.0...v1.32.0) (2026-04-03)
 
 
