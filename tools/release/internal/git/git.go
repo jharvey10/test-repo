@@ -4,6 +4,7 @@ package git
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"regexp"
@@ -44,12 +45,20 @@ func validateSHA(sha string) error {
 	return nil
 }
 
-// run executes a command with stdout/stderr connected to the terminal.
+// run executes a command with stdout/stderr connected to the terminal. Stderr
+// is also captured for error messaging.
 func run(args ...string) error {
 	cmd := exec.Command(args[0], args[1:]...)
+	var stderr bytes.Buffer
 	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
+	cmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
+	if err := cmd.Run(); err != nil {
+		if stderr.Len() > 0 {
+			return fmt.Errorf("%w: %s", err, strings.TrimSpace(stderr.String()))
+		}
+		return err
+	}
+	return nil
 }
 
 // runOutput executes a command and returns its stdout.
