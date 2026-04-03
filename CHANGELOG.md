@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.32.0](https://github.com/jharvey10/test-repo/compare/v1.31.0...v1.32.0) (2026-04-03)
+
+
+### Features 🌟
+
+* Add amazing feature stuff ([#219](https://github.com/jharvey10/test-repo/issues/219)) ([a59c0d8](https://github.com/jharvey10/test-repo/commit/a59c0d8e1beb3a389bd961bebaebff98d4099742))
+
+
+### Bug Fixes 🐛
+
+* Add final change to wowfile.txt ([#212](https://github.com/jharvey10/test-repo/issues/212)) ([310dd78](https://github.com/jharvey10/test-repo/commit/310dd7866953bcf29d80b4af0acc9d59fc8dfb0d))
+* Wowfile needs updates again ([#214](https://github.com/jharvey10/test-repo/issues/214)) ([b7753cb](https://github.com/jharvey10/test-repo/commit/b7753cb9058dd30415c79d379f98f0cb6686ebac))
+* Wowfile needs updates again [backport] ([#215](https://github.com/jharvey10/test-repo/issues/215)) ([5e5effb](https://github.com/jharvey10/test-repo/commit/5e5effb50a757f9c1df7626ccfd201c02bf779d0))
+
 ## [1.31.0](https://github.com/jharvey10/test-repo/compare/v1.30.0...v1.31.0) (2026-03-25)
 
 
