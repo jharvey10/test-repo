@@ -98,32 +98,29 @@ func run(prNumber int, label string, dryRun bool) (retErr error) {
 	// --- Git operations: branch, cherry-pick, push, create PR ---
 
 	if err := git.ConfigureUser(info.AppIdentity.Name, info.AppIdentity.Email); err != nil {
-		return fmt.Errorf("configuring git: %w", err)
+		return err
 	}
 
 	if err := git.Fetch(info.TargetBranch); err != nil {
-		return fmt.Errorf("fetching target branch: %w", err)
+		return err
 	}
 
-	// Stored for reset
 	originalBranch, err := git.CurrentBranch()
 	if err != nil {
-		return fmt.Errorf("getting current branch: %w", err)
+		return err
 	}
 
 	if err := git.CheckoutNewBranch(info.BackportBranch, "origin/"+info.TargetBranch); err != nil {
-		return fmt.Errorf("checking out new backport branch: %w", err)
+		return err
 	}
-
-	// At this point, we're ready to start mutating the working copy, so we defer a reset in case of failure.
 	defer resetWorkingCopy(originalBranch, info.BackportBranch)
 
 	if err := git.CherryPick(info.CommitSHA, true); err != nil {
-		return fmt.Errorf("cherry-picking commit %s: %w", info.CommitSHA, err)
+		return err
 	}
 
 	if err := git.Push(info.BackportBranch); err != nil {
-		return fmt.Errorf("pushing backport branch: %w", err)
+		return err
 	}
 	fmt.Printf("✅ Pushed backport branch: %s\n", info.BackportBranch)
 
