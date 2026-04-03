@@ -45,16 +45,17 @@ func validateSHA(sha string) error {
 	return nil
 }
 
-// run executes a command with stdout/stderr connected to the terminal. Stderr
-// is also captured for error messaging.
+// run executes a command with stdout/stderr connected to the terminal. Both streams are captured in
+// a buffer for error messaging.
 func run(args ...string) error {
 	cmd := exec.Command(args[0], args[1:]...)
-	var stderr bytes.Buffer
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
+	var combined bytes.Buffer
+	w := io.MultiWriter(os.Stdout, &combined)
+	cmd.Stdout = w
+	cmd.Stderr = w
 	if err := cmd.Run(); err != nil {
-		if stderr.Len() > 0 {
-			return fmt.Errorf("%w: %s", err, strings.TrimSpace(stderr.String()))
+		if msg := strings.TrimSpace(combined.String()); msg != "" {
+			return fmt.Errorf("%w:\n%s", err, msg)
 		}
 		return err
 	}
