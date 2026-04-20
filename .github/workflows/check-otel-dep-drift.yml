@@ -1,0 +1,168 @@
+name: Check OTel dependency drift against Alloy
+
+on:
+  pull_request:
+    paths:
+      - "go.mod"
+  workflow_call:
+    inputs:
+      go-mod-path:
+        description: "Path to the go.mod file to check (relative to repo root)"
+        required: false
+        type: string
+        default: "go.mod"
+      alloy-ref:
+        description: "Alloy branch to compare against"
+        required: false
+        type: string
+        default: "main"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-otel-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
+        with:
+          go-version: stable
+          cache: false
+
+      - name: Fetch Alloy go.mod
+        env:
+          ALLOY_REF: ${{ inputs.alloy-ref || 'main' }}
+        run: |
+          curl -sSfL \
+            "https://raw.githubusercontent.com/grafana/alloy/${ALLOY_REF}/go.mod" \
+            -o /tmp/alloy-go.mod
+
+      - name: Check for OTel version drift
+        id: check
+        env:
+          PR_GOMOD: ${{ github.workspace }}/${{ inputs.go-mod-path || 'go.mod' }}
+        run: |
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          ALLOY_GOMOD="/tmp/alloy-go.mod"
+
+          # Module prefixes whose versions Alloy keeps pinned across releases.
+          # A PR that bumps any of these could cause conflicts when Alloy
+          # imports this module, because Go's MVS algorithm would pull in the
+          # higher version and break Alloy's carefully synchronised set.
+          WATCHED_PREFIXES='
+            go.opentelemetry.io/collector
+            go.opentelemetry.io/otel
+            go.opentelemetry.io/contrib
+            go.opentelemetry.io/auto
+            go.opentelemetry.io/proto
+            github.com/open-telemetry/opentelemetry-collector-contrib
+          '
+
+          # Use `go mod edit -json` to extract requires as structured JSON,
+          # then jq to filter to watched prefixes and emit "module version" lines.
+          extract_otel_requires() {
+            local gomod="$1"
+            local jq_filter
+            jq_filter=$(printf 'startswith("%s") or ' $WATCHED_PREFIXES)
+            jq_filter="${jq_filter% or }"  # trim trailing " or "
+
+            go mod edit -json "$gomod" \
+              | jq -r --arg _ "" \
+                  ".Require // [] | .[] | select(.Path | ($jq_filter)) | \"\(.Path) \(.Version)\""
+          }
+
+          echo "::group::Alloy pinned OTel versions"
+          declare -A alloy_versions
+          while read -r mod ver; do
+            alloy_versions["$mod"]="$ver"
+            echo "  $mod $ver"
+          done < <(extract_otel_requires "$ALLOY_GOMOD")
+          echo "::endgroup::"
+
+          echo "::group::PR OTel versions"
+          declare -A pr_versions
+          while read -r mod ver; do
+            pr_versions["$mod"]="$ver"
+            echo "  $mod $ver"
+          done < <(extract_otel_requires "$PR_GOMOD")
+          echo "::endgroup::"
+
+          # Flag any module in this PR that is newer than Alloy's pin.
+          # Only modules that Alloy also requires matter for MVS.
+          drifted=""
+          for mod in "${!pr_versions[@]}"; do
+            pr_ver="${pr_versions[$mod]}"
+            alloy_ver="${alloy_versions[$mod]:-}"
+
+            if [[ -z "$alloy_ver" ]]; then
+              continue
+            fi
+            if [[ "$pr_ver" == "$alloy_ver" ]]; then
+              continue
+            fi
+
+            higher=$(printf '%s\n%s\n' "$alloy_ver" "$pr_ver" | sort -V | tail -1)
+            if [[ "$higher" == "$pr_ver" && "$higher" != "$alloy_ver" ]]; then
+              drifted+="| \`$mod\` | \`$alloy_ver\` | \`$pr_ver\` |"$'\n'
+            fi
+          done
+
+          if [[ -n "$drifted" ]]; then
+            echo "found_drift=true" >> "$GITHUB_OUTPUT"
+
+            {
+              echo 'comment<<DRIFT_EOF'
+              echo '> [!CAUTION]'
+              echo '> **OTel dependency drift detected** — this PR bumps OpenTelemetry module(s)'
+              echo '> to versions **newer** than what [Alloy pins on `main`](https://github.com/grafana/alloy/blob/main/go.mod).'
+              echo '> Alloy deliberately keeps OTel dependencies synchronized and only updates'
+              echo '> them every other minor release. Merging this as-is will force Alloy to'
+              echo '> either (a) accept an unplanned OTel bump or (b) add `exclude`/`replace`'
+              echo '> directives to work around it.'
+              echo '>'
+              echo '> Please coordinate with the Alloy team before merging.'
+              echo ''
+              echo '| Module | Alloy pin | This PR |'
+              echo '|--------|-----------|---------|'
+              echo -n "$drifted"
+              echo ''
+              echo 'DRIFT_EOF'
+            } >> "$GITHUB_OUTPUT"
+
+            echo ""
+            echo "::warning::OTel dependency drift detected — see job summary."
+          else
+            echo "found_drift=false" >> "$GITHUB_OUTPUT"
+            echo ""
+            echo "No OTel version drift detected against Alloy main."
+          fi
+
+      - name: Post PR comment on drift
+        if: steps.check.outputs.found_drift == 'true'
+        uses: marocchino/sticky-pull-request-comment@d4d6b0936434b21bc8345ad45a440c5f7d2c40ff # v3
+        with:
+          header: otel-drift-check
+          message: ${{ steps.check.outputs.comment }}
+
+      - name: Remove stale comment if no drift
+        if: steps.check.outputs.found_drift == 'false'
+        uses: marocchino/sticky-pull-request-comment@d4d6b0936434b21bc8345ad45a440c5f7d2c40ff # v3
+        with:
+          header: otel-drift-check
+          delete: true
+
+      - name: Fail on drift
+        if: steps.check.outputs.found_drift == 'true'
+        run: |
+          echo "::error::OTel modules in this PR are newer than Alloy's pinned versions."
+          echo "See the PR comment for details."
+          exit 1
