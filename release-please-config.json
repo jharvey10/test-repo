@@ -43,8 +43,7 @@
     "syntax": {
       "package-name": "syntax",
       "release-type": "go",
-      "versioning": "minor-breaking",
-      "changelog-path": "syntax/CHANGELOG.md"
+      "versioning": "minor-breaking"
     }
   }
 }
