@@ -43,7 +43,8 @@
     "syntax": {
       "package-name": "syntax",
       "release-type": "go",
-      "versioning": "minor-breaking"
+      "versioning": "minor-breaking",
+      "release-as": "0.1.0"
     }
   }
 }
