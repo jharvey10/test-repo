@@ -6,7 +6,8 @@ dist:
   output_path: .
 
 extensions:
-  - gomod: github.com/jharvey10/test-repo/extension/baseengine v1.32.0
+  - gomod: github.com/jharvey10/test-repo v1.33.0
+    import: github.com/jharvey10/test-repo/extension/baseengine
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/basicauthextension v0.147.0
   - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.147.0
 

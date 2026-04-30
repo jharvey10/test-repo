@@ -52,7 +52,7 @@ func components() (otelcol.Factories, error) {
 		return otelcol.Factories{}, err
 	}
 	factories.ExtensionModules = makeModulesMap(factories.Extensions, map[component.Type]string{
-		baseengine.NewFactory().Type(): "github.com/jharvey10/test-repo/extension/baseengine v1.32.0",
+		baseengine.NewFactory().Type(): "github.com/jharvey10/test-repo v1.33.0",
 		basicauthextension.NewFactory().Type(): "github.com/open-telemetry/opentelemetry-collector-contrib/extension/basicauthextension v0.147.0",
 		zpagesextension.NewFactory().Type(): "go.opentelemetry.io/collector/extension/zpagesextension v0.147.0",
 	})
