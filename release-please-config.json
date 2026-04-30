@@ -38,6 +38,11 @@
           "path": "collector/VERSION"
         }
       ]
+    },
+    "syntax": {
+      "release-type": "go",
+      "versioning": "minor-breaking",
+      "changelog-path": "syntax/CHANGELOG.md"
     }
   }
 }
