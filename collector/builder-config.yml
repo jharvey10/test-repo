@@ -2,7 +2,7 @@ dist:
   module: github.com/jharvey10/test-repo/otel_engine
   name: test-repo
   description: Test Repo OTel Collector distribution.
-  version: v1.32.0 # x-release-please-version
+  version: v1.33.0 # x-release-please-version
   output_path: .
 
 extensions:
