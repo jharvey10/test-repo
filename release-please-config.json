@@ -16,6 +16,7 @@
   ],
   "always-update": true,
   "draft": true,
+  "tag-separator": "/",
   "force-tag-creation": true,
   "draft-pull-request": true,
   "separate-pull-requests": true,
