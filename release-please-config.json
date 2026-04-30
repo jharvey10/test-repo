@@ -31,7 +31,7 @@
         },
         {
           "type": "generic",
-          "path": "internal/component/component.go"
+          "path": "collector/builder-config.yml"
         },
         {
           "type": "generic",

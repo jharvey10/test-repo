@@ -1,0 +1,55 @@
+name: Tag extension/alloyengine on Alloy release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Alloy release tag to mirror (e.g. v1.15.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  tag-alloyengine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate token 🔐
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        id: app-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: jharvey10
+          repositories: test-repo
+
+      - name: Resolve commit SHA for Alloy tag
+        id: resolve
+        env:
+          ALLOY_TAG: ${{ inputs.tag || github.ref_name }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          REF_JSON=$(gh api repos/grafana/alloy/git/ref/tags/"${ALLOY_TAG}")
+          OBJ_TYPE=$(echo "${REF_JSON}" | jq -r '.object.type')
+          OBJ_SHA=$(echo "${REF_JSON}" | jq -r '.object.sha')
+
+          if [ "${OBJ_TYPE}" = "tag" ]; then
+            # Annotated/signed tag — dereference to the underlying commit
+            OBJ_SHA=$(gh api repos/grafana/alloy/git/tags/"${OBJ_SHA}" --jq '.object.sha')
+          fi
+
+          echo "sha=${OBJ_SHA}" >> "${GITHUB_OUTPUT}"
+
+      - name: Create extension/alloyengine tag
+        env:
+          ALLOY_TAG: ${{ inputs.tag || github.ref_name }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh api repos/jharvey10/test-repo/git/refs \
+            -f ref="refs/tags/extension/alloyengine/${ALLOY_TAG}" \
+            -f sha="${{ steps.resolve.outputs.sha }}"

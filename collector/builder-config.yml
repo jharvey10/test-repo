@@ -1,0 +1,38 @@
+dist:
+  module: github.com/jharvey10/test-repo/otel_engine
+  name: test-repo
+  description: Test Repo OTel Collector distribution.
+  version: v1.32.0 # x-release-please-version
+  output_path: .
+
+extensions:
+  - gomod: github.com/jharvey10/test-repo/extension/baseengine v1.32.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/basicauthextension v0.147.0
+  - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.147.0
+
+exporters:
+  - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.147.0
+
+processors:
+  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.147.0
+  - gomod: go.opentelemetry.io/collector/processor/memorylimiterprocessor v0.147.0
+
+receivers:
+  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.147.0
+
+connectors:
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/countconnector v0.147.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/spanmetricsconnector v0.147.0
+  - gomod: go.opentelemetry.io/collector/connector/forwardconnector v0.147.0
+
+providers:
+  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.45.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.45.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpprovider v1.45.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.45.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.45.0
+
+replaces:
+  # Local modules.
+  - github.com/jharvey10/test-repo => ../
+  - github.com/jharvey10/test-repo/syntax => ../syntax
