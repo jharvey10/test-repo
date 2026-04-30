@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/jharvey10/test-repo/internal/component"
+	"github.com/jharvey10/test-repo/syntax"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -28,6 +29,8 @@ func (r *Runner) Add(c component.Component) {
 // Run starts all registered components concurrently using errgroup.
 func (r *Runner) Run() error {
 	fmt.Printf("Runner started with %d registered component types\n", len(component.All()))
+
+	syntax.Main()
 
 	g, _ := errgroup.WithContext(context.Background())
 
