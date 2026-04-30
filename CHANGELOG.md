@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.34.0](https://github.com/jharvey10/test-repo/compare/v1.33.0...v1.34.0) (2026-04-30)
+
+
+### Features 🌟
+
+* **syntax:** Do a cool print thing ([5ef81ae](https://github.com/jharvey10/test-repo/commit/5ef81aef882d4b6392680adef064699c7cc13fa7))
+
 ## [1.33.0](https://github.com/jharvey10/test-repo/compare/v1.32.0...v1.33.0) (2026-04-30)
 
 
