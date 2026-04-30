@@ -26,6 +26,9 @@
       "release-type": "go",
       "versioning": "minor-breaking",
       "changelog-path": "CHANGELOG.md",
+      "exclude-paths": [
+        "syntax"
+      ],
       "extra-files": [
         {
           "type": "generic",
