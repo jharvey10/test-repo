@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.33.0](https://github.com/jharvey10/test-repo/compare/v1.32.0...v1.33.0) (2026-04-30)
+
+
+### Features 🌟
+
+* More great features ([#221](https://github.com/jharvey10/test-repo/issues/221)) ([a258a9b](https://github.com/jharvey10/test-repo/commit/a258a9be93fdad8b1d72795e738d38d01b93a063))
+* Update wowfile.txt ([#230](https://github.com/jharvey10/test-repo/issues/230)) ([6c61da2](https://github.com/jharvey10/test-repo/commit/6c61da2163bbe0e4af243b29e26cb7a06eaa2a55))
+* Weird testing stuff ([5419354](https://github.com/jharvey10/test-repo/commit/54193541d327b6f1f8d72a30ed047185e4748fff))
+
+
+### Bug Fixes 🐛
+
+* Add another amazing thing to wowfile.txt ([#233](https://github.com/jharvey10/test-repo/issues/233)) ([e8fd29b](https://github.com/jharvey10/test-repo/commit/e8fd29b0b2544ebec61ab77c5cf7138a52eaf8b8))
+* Add line about wowfile being the best ([#240](https://github.com/jharvey10/test-repo/issues/240)) ([a815d4f](https://github.com/jharvey10/test-repo/commit/a815d4f231df4aeac4985aeca760400a47aa6aea))
+
+
+### Documentation 📖
+
+* Add some docs wow ([#239](https://github.com/jharvey10/test-repo/issues/239)) ([de4e727](https://github.com/jharvey10/test-repo/commit/de4e727a6b04400ecd59766095fb04cff6d4cbbf))
+
 ## [1.32.0](https://github.com/jharvey10/test-repo/compare/v1.31.0...v1.32.0) (2026-04-03)
 
 
