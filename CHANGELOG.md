@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.34.1](https://github.com/jharvey10/test-repo/compare/v1.34.0...v1.34.1) (2026-04-30)
+
+
+### Bug Fixes 🐛
+
+* Add greeting message 'hello there wow' ([#245](https://github.com/jharvey10/test-repo/issues/245)) ([4a0915c](https://github.com/jharvey10/test-repo/commit/4a0915cb6b60cea70c03512b13bb6a469a450ad8))
+
 ## [1.34.0](https://github.com/jharvey10/test-repo/compare/v1.33.0...v1.34.0) (2026-04-30)
 
 
