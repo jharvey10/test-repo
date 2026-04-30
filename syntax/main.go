@@ -23,6 +23,8 @@ func Main() {
 		constants["hostname"] = hostname
 	}
 	constants["version"] = normalizeVersion(Version)
+
+	print("hello")
 }
 
 // normalizeVersion normalizes the version string to always contain a "v"
