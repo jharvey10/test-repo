@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.35.0](https://github.com/jharvey10/test-repo/compare/v1.34.0...v1.35.0) (2026-05-14)
+
+
+### Features 🌟
+
+* It's a great feature ([#257](https://github.com/jharvey10/test-repo/issues/257)) ([4f27c2b](https://github.com/jharvey10/test-repo/commit/4f27c2bb67337296c8494e34c7dc572c6bfd226e))
+
 ## [1.34.0](https://github.com/jharvey10/test-repo/compare/v1.33.0...v1.34.0) (2026-04-30)
 
 
