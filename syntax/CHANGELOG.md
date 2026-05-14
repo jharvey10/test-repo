@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/jharvey10/test-repo/compare/syntax/v0.1.1...syntax/v0.1.2) (2026-05-14)
+
+
+### Bug Fixes 🐛
+
+* **syntax:** Do the thing ([#258](https://github.com/jharvey10/test-repo/issues/258)) ([33749e7](https://github.com/jharvey10/test-repo/commit/33749e7b977c49a28ec804040231da99dfca9665))
+
 ## [0.1.1](https://github.com/jharvey10/test-repo/compare/syntax/v0.1.0...syntax/v0.1.1) (2026-05-14)
 
 
