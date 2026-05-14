@@ -19,7 +19,6 @@
   "tag-separator": "/",
   "force-tag-creation": true,
   "draft-pull-request": true,
-  "separate-pull-requests": true,
   "pull-request-title-pattern": "chore${scope}: Release${component} ${version}",
   "packages": {
     ".": {
@@ -49,8 +48,7 @@
       "release-type": "go",
       "versioning": "minor-breaking",
       "changelog-path": "CHANGELOG.md",
-      "skip-github-release": true,
-      "pull-request-title-pattern": "chore(syntax): Release syntax ${version}",
+      "pull-request-title-pattern": "chore(syntax): Release${component} ${version}",
       "extra-files": [
         {
           "type": "generic",
