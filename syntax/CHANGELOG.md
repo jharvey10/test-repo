@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.0](https://github.com/jharvey10/test-repo/compare/syntax-v0.1.0...syntax-v0.1.0) (2026-04-30)
+## [0.1.0](https://github.com/jharvey10/test-repo/compare/syntax/v0.1.0...syntax/v0.1.0) (2026-04-30)
 
 
 ### Features 🌟
