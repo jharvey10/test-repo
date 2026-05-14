@@ -26,6 +26,7 @@ func Main() {
 
 	print("hello")
 	print("hello there wow")
+	print("one more thing")
 }
 
 // normalizeVersion normalizes the version string to always contain a "v"
