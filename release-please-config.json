@@ -48,7 +48,14 @@
       "package-name": "syntax",
       "release-type": "go",
       "versioning": "minor-breaking",
-      "skip-github-release": true
+      "changelog-path": "CHANGELOG.md",
+      "skip-github-release": true,
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "/go.mod"
+        }
+      ]
     }
   }
 }
