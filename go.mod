@@ -3,7 +3,7 @@ module github.com/jharvey10/test-repo
 go 1.25.1
 
 require (
-	github.com/jharvey10/test-repo/syntax v0.0.0-00010101000000-000000000000 // x-release-please-version
+	github.com/jharvey10/test-repo/syntax v0.0.0 // x-release-please-version
 	go.opentelemetry.io/collector/component v1.57.0
 	go.opentelemetry.io/collector/extension v1.57.0
 	golang.org/x/sync v0.10.0
