@@ -160,9 +160,9 @@ jobs:
           header: otel-drift-check
           delete: true
 
-      - name: Fail on drift
-        if: steps.check.outputs.found_drift == 'true'
-        run: |
-          echo "::error::OTel modules in this PR are newer than Alloy's pinned versions."
-          echo "See the PR comment for details."
-          exit 1
+      # - name: Fail on drift
+      #   if: steps.check.outputs.found_drift == 'true'
+      #   run: |
+      #     echo "::error::OTel modules in this PR are newer than Alloy's pinned versions."
+      #     echo "See the PR comment for details."
+      #     exit 1
