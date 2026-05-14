@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.34.1](https://github.com/jharvey10/test-repo/compare/v1.34.0...v1.34.1) (2026-05-14)
+
+
+### Bug Fixes 🐛
+
+* **syntax:** Release syntax 0.1.1 ([#246](https://github.com/jharvey10/test-repo/issues/246)) ([6f2d553](https://github.com/jharvey10/test-repo/commit/6f2d5531c007ff811b942aa48725493bc5ff46ab))
+* **syntax:** Release syntax 0.1.1 ([#252](https://github.com/jharvey10/test-repo/issues/252)) ([6f2d553](https://github.com/jharvey10/test-repo/commit/6f2d5531c007ff811b942aa48725493bc5ff46ab))
+* **syntax:** Something with stuff ([#248](https://github.com/jharvey10/test-repo/issues/248)) ([6f2d553](https://github.com/jharvey10/test-repo/commit/6f2d5531c007ff811b942aa48725493bc5ff46ab))
+
 ## [1.34.0](https://github.com/jharvey10/test-repo/compare/v1.33.0...v1.34.0) (2026-04-30)
 
 
