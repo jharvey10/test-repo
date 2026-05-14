@@ -50,6 +50,7 @@
       "versioning": "minor-breaking",
       "changelog-path": "CHANGELOG.md",
       "skip-github-release": true,
+      "pull-request-title-pattern": "fix(syntax): Release syntax ${version}",
       "extra-files": [
         {
           "type": "generic",
