@@ -1,14 +1,27 @@
 name: Trigger Testing
+
 on:
   issues:
     types: [labeled]
 
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
 jobs:
-  stuff:
+  print-pr-number:
+    if: >
+      github.repository == 'jharvey10/test-repo' &&
+      github.event.issue.pull_request != null &&
+      startsWith(github.event.label.name, 'backport/')
     runs-on: ubuntu-latest
+
     steps:
-      - name: Run tests
+      - name: Print PR number
         run: |
-          echo "Hello, world! ${{ env.stuff }}"
+          echo "PR number: ${PR_NUMBER}"
+          echo "Label: ${LABEL_NAME}"
         env:
-          stuff: ${{ context.payload.issue.pull_request }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+          LABEL_NAME: ${{ github.event.label.name }}
