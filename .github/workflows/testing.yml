@@ -1,0 +1,14 @@
+name: Trigger Testing
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  stuff:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run tests
+        run: |
+          echo "Hello, world! ${{ env.stuff }}"
+        env:
+          stuff: ${{ context.payload.issue.pull_request }}
