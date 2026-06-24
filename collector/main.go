@@ -4,7 +4,7 @@
 package main
 
 import (
-	"os"
+	"log"
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/confmap"
@@ -20,7 +20,7 @@ func main() {
 	info := component.BuildInfo{
 		Command:     "test-repo",
 		Description: "Test Repo OTel Collector distribution.",
-		Version:     "v1.35.0",
+		Version:     CollectorVersion(),
 	}
 
 	set := otelcol.CollectorSettings{
@@ -43,22 +43,20 @@ func main() {
 			httpprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "go.opentelemetry.io/collector/confmap/provider/httpprovider v1.45.0",
 			httpsprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.45.0",
 			yamlprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.45.0",
-		},
+    	},
 		ConverterModules: []string{
 		},
 	}
 
 	if err := run(set); err != nil {
-		// The error message is logged by cobra, so we intentionally
-		// avoid logging it again here to prevent duplicate output.
-		os.Exit(1)
+		log.Fatal(err)
 	}
 }
 
 func runInteractive(params otelcol.CollectorSettings) error {
-	cmd := otelcol.NewCommand(params)
+	cmd := newAlloyCommand(params)
 	if err := cmd.Execute(); err != nil {
-		return err
+		log.Fatalf("collector server run finished with error: %v", err)
 	}
 
 	return nil
