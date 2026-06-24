@@ -1,24 +1,35 @@
-package main
+package createrc
 
 import (
 	"context"
-	"flag"
 	"fmt"
-	"log"
 	"regexp"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/google/go-github/v57/github"
+	"github.com/spf13/cobra"
 
 	gh "github.com/grafana/alloy/tools/release/internal/github"
 	"github.com/grafana/alloy/tools/release/internal/version"
 )
 
 const (
-	backportLabelPrefix = "backport/v"
+	mainBranch          = "main"
 	releaseBranchPrefix = "release/v"
+	backportLabelPrefix = "backport/v"
+
+	// release-please names PR head branches "release-please--branches--<branch>",
+	// appending "--components--<name>" for component modules.
+	releasePleaseBranchPrefix = "release-please--branches--"
+	releasePleaseComponentSep = "--components--"
 )
+
+type flags struct {
+	branch string
+	dryRun bool
+}
 
 // rcInfo holds the resolved parameters for creating a release candidate.
 type rcInfo struct {
@@ -31,7 +42,7 @@ type rcInfo struct {
 }
 
 func (info rcInfo) isFirstMinorRC() bool {
-	return info.RCNumber == 0 && info.Branch == "main"
+	return info.RCNumber == 0 && info.Branch == mainBranch
 }
 
 // prereleaseParams holds parameters for creating a draft prerelease.
@@ -43,53 +54,64 @@ type prereleaseParams struct {
 	PRNumber  int    // Associated release-please PR number
 }
 
-func main() {
-	branch, dryRun := parseFlags()
+func Command() *cobra.Command {
+	var flags flags
 
-	ctx := context.Background()
-	client, err := gh.NewClientFromEnv(ctx)
-	if err != nil {
-		log.Fatal(err)
+	cmd := &cobra.Command{
+		Use:   "create-rc",
+		Short: "Create a release candidate tag and draft prerelease for the main Alloy module",
+		Long: "Creates the RC from the main Alloy module's release-please PR. Component modules such as " +
+			"syntax are released directly by release-please and are ignored.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return run(cmd.Context(), flags)
+		},
 	}
 
-	info := resolveRCInfo(ctx, client, branch)
+	cmd.Flags().StringVar(&flags.branch, "branch", "", "Branch to create RC for (e.g., main or release/v1.15)")
+	cmd.Flags().BoolVar(&flags.dryRun, "dry-run", false, "Dry run (do not create tag or release)")
+	_ = cmd.MarkFlagRequired("branch")
 
-	if dryRun {
-		printDryRun(info)
-		return
-	}
-
-	createRCRelease(ctx, client, info)
-
-	if info.isFirstMinorRC() {
-		ensureBackportLabelForRC(ctx, client, info)
-	}
+	return cmd
 }
 
-func parseFlags() (string, bool) {
-	var (
-		dryRun bool
-		branch string
-	)
-	flag.BoolVar(&dryRun, "dry-run", false, "Dry run (do not create tag or release)")
-	flag.StringVar(&branch, "branch", "", "Branch to create RC for (e.g., main or release/v1.15)")
-	flag.Parse()
-
-	if branch == "" {
-		log.Fatal("Branch is required (use --branch flag, e.g., --branch main)")
-	}
-	if branch != "main" {
-		if _, err := version.ParseReleaseBranch(branch); err != nil {
-			log.Fatal(err)
+func run(ctx context.Context, flags flags) error {
+	if flags.branch != mainBranch {
+		if _, err := version.ParseReleaseBranch(flags.branch); err != nil {
+			return err
 		}
 	}
-	return branch, dryRun
+
+	client, err := gh.NewClientFromEnv(ctx)
+	if err != nil {
+		return err
+	}
+
+	info, err := resolveRCInfo(ctx, client, flags.branch)
+	if err != nil {
+		return err
+	}
+
+	if flags.dryRun {
+		printRCDryRun(info)
+		return nil
+	}
+
+	if err := createRCRelease(ctx, client, info); err != nil {
+		return err
+	}
+
+	if info.isFirstMinorRC() {
+		if err := ensureBackportLabelForRC(ctx, client, info); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-func resolveRCInfo(ctx context.Context, client *gh.Client, branch string) rcInfo {
+func resolveRCInfo(ctx context.Context, client *gh.Client, branch string) (rcInfo, error) {
 	pr, err := findReleasePleasePR(ctx, client, branch)
 	if err != nil {
-		log.Fatalf("Failed to find release-please PR: %v", err)
+		return rcInfo{}, fmt.Errorf("finding release-please PR: %w", err)
 	}
 
 	fmt.Printf("Found release-please PR #%d: %s\n", pr.GetNumber(), pr.GetTitle())
@@ -98,22 +120,22 @@ func resolveRCInfo(ctx context.Context, client *gh.Client, branch string) rcInfo
 
 	ver, err := extractVersionFromTitle(pr.GetTitle())
 	if err != nil {
-		log.Fatalf("Failed to extract version from PR title: %v", err)
+		return rcInfo{}, fmt.Errorf("extracting version from PR title: %w", err)
 	}
 	fmt.Printf("Target version: %s\n", ver)
 
 	isPatch, err := version.IsPatch(ver)
 	if err != nil {
-		log.Fatalf("Failed to parse version: %v", err)
+		return rcInfo{}, fmt.Errorf("parsing version: %w", err)
 	}
-	if branch == "main" && isPatch {
+	if branch == mainBranch && isPatch {
 		mm, _ := version.MajorMinor(ver)
-		log.Fatalf("Cannot create a patch release RC from main. Use the release branch instead: --branch release/v%s", mm)
+		return rcInfo{}, fmt.Errorf("cannot create a patch release RC from main. Use the release branch instead: --branch release/v%s", mm)
 	}
 
 	rcNumber, err := findNextRCNumber(ctx, client, ver)
 	if err != nil {
-		log.Fatalf("Failed to determine next RC number: %v", err)
+		return rcInfo{}, fmt.Errorf("determining next RC number: %w", err)
 	}
 
 	rcTag := fmt.Sprintf("v%s-rc.%d", ver, rcNumber)
@@ -129,10 +151,10 @@ func resolveRCInfo(ctx context.Context, client *gh.Client, branch string) rcInfo
 		RCTag:     rcTag,
 		BranchSHA: branchSHA,
 		Branch:    branch,
-	}
+	}, nil
 }
 
-func printDryRun(info rcInfo) {
+func printRCDryRun(info rcInfo) {
 	fmt.Println("\n🏃 DRY RUN - No changes made")
 	fmt.Printf("Would create tag: %s\n", info.RCTag)
 	fmt.Printf("Base branch: %s\n", info.Branch)
@@ -144,7 +166,7 @@ func printDryRun(info rcInfo) {
 	}
 }
 
-func createRCRelease(ctx context.Context, client *gh.Client, info rcInfo) {
+func createRCRelease(ctx context.Context, client *gh.Client, info rcInfo) error {
 	// Draft releases don't create tags until published. Tag creation is what triggers artifacts to
 	// build and get attached to releases. So we create a tag here like how release-please does with
 	// force-tag-creation.
@@ -153,7 +175,7 @@ func createRCRelease(ctx context.Context, client *gh.Client, info rcInfo) {
 		SHA:     info.BranchSHA,
 		Message: fmt.Sprintf("Release candidate %s", info.RCTag),
 	}); err != nil {
-		log.Fatalf("Failed to create tag: %v", err)
+		return fmt.Errorf("creating tag: %w", err)
 	}
 	fmt.Printf("Created tag: %s -> %s\n", info.RCTag, info.BranchSHA[:12])
 
@@ -165,15 +187,16 @@ func createRCRelease(ctx context.Context, client *gh.Client, info rcInfo) {
 		PRNumber:  info.PR.GetNumber(),
 	})
 	if err != nil {
-		log.Fatalf("Failed to create draft prerelease: %v", err)
+		return fmt.Errorf("creating draft prerelease: %w", err)
 	}
 	fmt.Printf("✅ Created draft prerelease: %s\n", releaseURL)
+	return nil
 }
 
-func ensureBackportLabelForRC(ctx context.Context, client *gh.Client, info rcInfo) {
+func ensureBackportLabelForRC(ctx context.Context, client *gh.Client, info rcInfo) error {
 	majorMinor, err := version.MajorMinor(info.Version)
 	if err != nil {
-		log.Fatalf("Failed to parse major.minor from version %q: %v", info.Version, err)
+		return fmt.Errorf("parsing major.minor from version %q: %w", info.Version, err)
 	}
 	backportLabel := backportLabelPrefix + majorMinor
 	branchName := releaseBranchPrefix + majorMinor
@@ -184,13 +207,14 @@ func ensureBackportLabelForRC(ctx context.Context, client *gh.Client, info rcInf
 		Description: fmt.Sprintf("Backport to %s", branchName),
 	})
 	if err != nil {
-		log.Fatalf("Failed to ensure backport label: %v", err)
+		return fmt.Errorf("ensuring backport label: %w", err)
 	}
 	if created {
 		fmt.Printf("✅ Created backport label: %s\n", backportLabel)
 	} else {
 		fmt.Printf("Backport label %s already exists\n", backportLabel)
 	}
+	return nil
 }
 
 func findReleasePleasePR(ctx context.Context, client *gh.Client, baseBranch string) (*github.PullRequest, error) {
@@ -208,28 +232,36 @@ func findReleasePleasePR(ctx context.Context, client *gh.Client, baseBranch stri
 	}
 
 	fmt.Printf("Found %d open PRs targeting %s\n", len(prs), baseBranch)
-
-	// Look for PR with "autorelease: pending" label (handle both with/without space after colon)
 	for _, pr := range prs {
 		fmt.Printf("  PR #%d: %q has %d labels\n", pr.GetNumber(), pr.GetTitle(), len(pr.Labels))
 		for _, label := range pr.Labels {
+			fmt.Printf("    - label: %q\n", label.GetName())
+		}
+	}
+
+	return selectMainModuleReleasePR(prs, baseBranch)
+}
+
+// selectMainModuleReleasePR picks the main Alloy module's release-please PR, not
+// a component module's (e.g. syntax). It keys off release-please's own head
+// branch naming rather than the PR title (which our config can freely rewrite):
+// the main module's head branch has no "--components--" segment. prs are already
+// filtered to baseBranch by the caller.
+func selectMainModuleReleasePR(prs []*github.PullRequest, baseBranch string) (*github.PullRequest, error) {
+	for _, pr := range prs {
+		head := pr.GetHead().GetRef()
+		if !strings.HasPrefix(head, releasePleaseBranchPrefix) || strings.Contains(head, releasePleaseComponentSep) {
+			continue
+		}
+		for _, label := range pr.Labels {
 			labelName := label.GetName()
-			fmt.Printf("    - label: %q\n", labelName)
 			if labelName == "autorelease: pending" || labelName == "autorelease:pending" {
 				return pr, nil
 			}
 		}
 	}
 
-	// Fallback: look for PR with release-please title pattern
-	titlePattern := regexp.MustCompile(fmt.Sprintf(`^chore\(%s\): Release`, regexp.QuoteMeta(baseBranch)))
-	for _, pr := range prs {
-		if titlePattern.MatchString(pr.GetTitle()) {
-			return pr, nil
-		}
-	}
-
-	return nil, fmt.Errorf("no release-please PR found for branch %s (looked for 'autorelease: pending' or 'autorelease:pending' label or release-please title pattern)", baseBranch)
+	return nil, fmt.Errorf("no main-module release-please PR found for branch %s (looked for a %q head branch with an 'autorelease: pending' label)", baseBranch, releasePleaseBranchPrefix+baseBranch)
 }
 
 func extractVersionFromTitle(title string) (string, error) {

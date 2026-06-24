@@ -6,8 +6,10 @@ on:
       - 'v[0-9]+.[0-9]+.0'
 
 permissions:
-  contents: write
   id-token: write
+
+env:
+  ALLOYBOT_APP_NAME: jharvey10-test-app
 
 jobs:
   create-branch:
@@ -23,14 +25,14 @@ jobs:
           repositories: test-repo
 
       - name: Checkout repository 🛎️
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
           persist-credentials: false
 
       - name: Set up Go 🏗️
-        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
         with:
           go-version-file: tools/go.mod
           cache-dependency-path: tools/go.sum
@@ -39,8 +41,6 @@ jobs:
       - name: Run create-release-branch tool 🌿
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          APP_SLUG: ${{ env.ALLOYBOT_APP_NAME }}
           RELEASE_TAG: ${{ github.ref_name }}
-        run: |
-          cd tools
-          go run ./release/create-release-branch --tag "${RELEASE_TAG}"
+        run: go run -C tools ./cmd release create-release-branch --tag "${RELEASE_TAG}"

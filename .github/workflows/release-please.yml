@@ -7,9 +7,10 @@ on:
       - 'release/v*'
 
 permissions:
-  contents: write
-  pull-requests: write
   id-token: write
+
+env:
+  ALLOYBOT_APP_NAME: jharvey10-test-app
 
 jobs:
   release-please:
@@ -25,22 +26,24 @@ jobs:
           repositories: test-repo
 
       - name: Checkout repository 🛎️
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
+          token: ${{ steps.app-token.outputs.token }}
           persist-credentials: false
 
-      - name: Setup Node.js 🏗️
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - name: Setup tools 🛠️ # zizmor: ignore[cache-poisoning] Workflow does not directly create artifacts.
+        uses: jdx/mise-action@dba19683ed58901619b14f395a24841710cb4925 # v4.1.0
         with:
-          node-version-file: tools/release/release-please-runner/.nvmrc
-          package-manager-cache: false
+          version: v2026.5.18
+          sha256: cfac593469d028d7ae5fe36e37bd7c59118b5238e92d8a876209578464f24a84
+          install_args: go node
 
       - name: Install dependencies 📦
-        working-directory: tools/release/release-please-runner
-        run: npm install
+        working-directory: build-tools/release-please-runner
+        run: npm ci --no-audit --no-fund
 
       - name: Run release-please 🚀
-        working-directory: tools/release/release-please-runner
+        working-directory: build-tools/release-please-runner
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           REPO_URL: ${{ github.repository }}
@@ -48,3 +51,44 @@ jobs:
           CONFIG_FILE: release-please-config.json
           MANIFEST_FILE: .release-please-manifest.json
         run: node index.js
+
+      - name: Find root release-please branch 🔎
+        id: root-release-branch
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: |
+          RELEASE_BRANCH="release-please--branches--${GITHUB_REF_NAME}"
+          echo "name=${RELEASE_BRANCH}" >> "${GITHUB_OUTPUT}"
+          if ! git fetch --depth=1 origin "refs/heads/${RELEASE_BRANCH}:refs/remotes/origin/${RELEASE_BRANCH}" >/dev/null 2>&1; then
+            echo "No root release-please branch ${RELEASE_BRANCH}; nothing to regenerate."
+            echo "exists=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          echo "exists=true" >> "${GITHUB_OUTPUT}"
+
+      - name: Switch to root release-please branch 🌿
+        if: steps.root-release-branch.outputs.exists == 'true'
+        env:
+          RELEASE_BRANCH: ${{ steps.root-release-branch.outputs.name }}
+        run: |
+          git switch -C "${RELEASE_BRANCH}" "refs/remotes/origin/${RELEASE_BRANCH}"
+
+      - name: Regenerate collector distro and commit changes 🏗️
+        if: steps.root-release-branch.outputs.exists == 'true'
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          RELEASE_BRANCH: ${{ steps.root-release-branch.outputs.name }}
+        run: |
+          make generate-otel-collector-distro
+
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Collector generation produced no diff; nothing to commit."
+            exit 0
+          fi
+
+          git add -- go.mod go.sum collector/
+          go run -C tools ./cmd release commit-worktree \
+            --branch "${RELEASE_BRANCH}" \
+            --message "chore: Regenerate collector distro"

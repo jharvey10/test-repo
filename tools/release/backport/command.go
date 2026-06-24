@@ -1,18 +1,23 @@
-package main
+package backport
 
 import (
 	"context"
-	"flag"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
 	"github.com/google/go-github/v57/github"
+	"github.com/spf13/cobra"
 
 	"github.com/grafana/alloy/tools/release/internal/git"
 	gh "github.com/grafana/alloy/tools/release/internal/github"
 )
+
+type flags struct {
+	prNumber int
+	label    string
+	dryRun   bool
+}
 
 // backportInfo holds all the data gathered during precondition checks that is
 // needed to perform the backport.
@@ -20,59 +25,50 @@ type backportInfo struct {
 	PRNumber       int
 	OriginalPR     *github.PullRequest
 	MergeCommitSHA string
-	CommitSHA      string
-	AppIdentity    gh.AppIdentity
 	TargetBranch   string
 	BackportBranch string
 }
 
-func main() {
-	var (
-		prNumber int
-		label    string
-		dryRun   bool
-	)
-	flag.IntVar(&prNumber, "pr", 0, "PR number to backport")
-	flag.StringVar(&label, "label", "", "Backport label (e.g., backport/v1.15)")
-	flag.BoolVar(&dryRun, "dry-run", false, "Dry run (do not create PR)")
-	flag.Parse()
+func Command() *cobra.Command {
+	var flags flags
 
-	if prNumber == 0 {
-		log.Fatal("PR number is required (use --pr flag)")
-	}
-	if label == "" {
-		log.Fatal("Label is required (use --label flag)")
+	cmd := &cobra.Command{
+		Use:   "backport",
+		Short: "Cherry-pick a squash-merged PR to a release branch and open a backport PR",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return run(cmd.Context(), flags)
+		},
 	}
 
-	if err := run(prNumber, label, dryRun); err != nil {
-		log.Fatal(err)
-	}
+	cmd.Flags().IntVar(&flags.prNumber, "pr", 0, "PR number to backport")
+	cmd.Flags().StringVar(&flags.label, "label", "", "Backport label (e.g., backport/v1.15)")
+	cmd.Flags().BoolVar(&flags.dryRun, "dry-run", false, "Dry run (do not create PR)")
+	_ = cmd.MarkFlagRequired("pr")
+	_ = cmd.MarkFlagRequired("label")
+
+	return cmd
 }
 
-// run performs the backport operation. It is broken out into a separate function to allow deferred
-// working copy cleanup.
-func run(prNumber int, label string, dryRun bool) (retErr error) {
-	version := strings.TrimPrefix(label, "backport/")
-	if version == label {
-		return fmt.Errorf("invalid backport label format: %s (expected backport/vX.Y)", label)
+func run(ctx context.Context, flags flags) (retErr error) {
+	version := strings.TrimPrefix(flags.label, "backport/")
+	if version == flags.label {
+		return fmt.Errorf("invalid backport label format: %s (expected backport/vX.Y)", flags.label)
 	}
 	if !strings.HasPrefix(version, "v") {
 		return fmt.Errorf("invalid version format: %s (expected vX.Y)", version)
 	}
 
 	targetBranch := fmt.Sprintf("release/%s", version)
-	backportBranch := fmt.Sprintf("backport/pr-%d-to-%s", prNumber, version)
+	backportBranch := fmt.Sprintf("backport/pr-%d-to-%s", flags.prNumber, version)
 
-	fmt.Printf("🍒 Backporting PR #%d to %s\n", prNumber, targetBranch)
-
-	ctx := context.Background()
+	fmt.Printf("🍒 Backporting PR #%d to %s\n", flags.prNumber, targetBranch)
 
 	client, err := gh.NewClientFromEnv(ctx)
 	if err != nil {
 		return err
 	}
 
-	info, err := resolveBackportInfo(ctx, client, prNumber, targetBranch, backportBranch)
+	info, err := resolveBackportInfo(ctx, client, flags.prNumber, targetBranch, backportBranch)
 	if err != nil {
 		return err
 	}
@@ -80,10 +76,10 @@ func run(prNumber int, label string, dryRun bool) (retErr error) {
 		return nil
 	}
 
-	if dryRun {
+	if flags.dryRun {
 		fmt.Println("\n🏃 DRY RUN - No changes made")
 		fmt.Printf("Would create backport branch: %s\n", info.BackportBranch)
-		fmt.Printf("Would cherry-pick commit: %s\n", info.CommitSHA)
+		fmt.Printf("Would cherry-pick commit: %s\n", info.MergeCommitSHA)
 		fmt.Printf("Would create PR: %s → %s\n", info.BackportBranch, info.TargetBranch)
 		return nil
 	}
@@ -95,12 +91,22 @@ func run(prNumber int, label string, dryRun bool) (retErr error) {
 		}
 	}()
 
-	// --- Git operations: branch, cherry-pick, push, create PR ---
+	// --- Git operations: branch, cherry-pick, create signed API commit, create PR ---
 
-	if err := git.ConfigureUser(info.AppIdentity.Name, info.AppIdentity.Email); err != nil {
+	if err := performBackport(ctx, client, info); err != nil {
 		return err
 	}
 
+	backportPR, err := createBackportPR(ctx, client, info)
+	if err != nil {
+		return fmt.Errorf("creating backport PR: %w", err)
+	}
+	fmt.Printf("✅ Created backport PR: %s\n", backportPR.GetHTMLURL())
+
+	return nil
+}
+
+func performBackport(ctx context.Context, client *gh.Client, info *backportInfo) error {
 	if err := git.Fetch(info.TargetBranch); err != nil {
 		return err
 	}
@@ -115,22 +121,49 @@ func run(prNumber int, label string, dryRun bool) (retErr error) {
 	}
 	defer resetWorkingCopy(originalBranch, info.BackportBranch)
 
-	if err := git.CherryPick(info.CommitSHA, true); err != nil {
-		return err
-	}
-
-	if err := git.Push(info.BackportBranch); err != nil {
-		return err
-	}
-	fmt.Printf("✅ Pushed backport branch: %s\n", info.BackportBranch)
-
-	backportPR, err := createBackportPR(ctx, client, info)
+	changes, baseSHA, err := prepareBackportCommit(ctx, client, info)
 	if err != nil {
-		return fmt.Errorf("creating backport PR: %w", err)
+		return err
 	}
-	fmt.Printf("✅ Created backport PR: %s\n", backportPR.GetHTMLURL())
+	if err := client.CreateBranch(ctx, gh.CreateBranchParams{
+		Branch: info.BackportBranch,
+		SHA:    baseSHA,
+	}); err != nil {
+		return fmt.Errorf("creating backport branch: %w", err)
+	}
+
+	message, err := git.GetCherryPickCommitMessage(info.MergeCommitSHA)
+	if err != nil {
+		return err
+	}
+	commitSHA, err := createBackportCommit(ctx, client, info.BackportBranch, baseSHA, message, changes)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("✅ Created signed backport commit %s on %s\n", commitSHA, info.BackportBranch)
 
 	return nil
+}
+
+func prepareBackportCommit(ctx context.Context, client *gh.Client, info *backportInfo) (git.StagedDiff, string, error) {
+	if err := git.CherryPick(info.MergeCommitSHA, false); err != nil {
+		return git.StagedDiff{}, "", err
+	}
+
+	changes, err := git.GetStagedChanges()
+	if err != nil {
+		return git.StagedDiff{}, "", err
+	}
+	if len(changes.Additions) == 0 && len(changes.Deletions) == 0 {
+		return git.StagedDiff{}, "", fmt.Errorf("cherry-pick of %s produced no staged changes", info.MergeCommitSHA)
+	}
+
+	baseSHA, err := client.GetRefSHA(ctx, info.TargetBranch)
+	if err != nil {
+		return git.StagedDiff{}, "", fmt.Errorf("getting target branch SHA: %w", err)
+	}
+
+	return changes, baseSHA, nil
 }
 
 // resolveBackportInfo gathers all the information needed to perform a
@@ -165,41 +198,30 @@ func resolveBackportInfo(ctx context.Context, client *gh.Client, prNumber int, t
 		return nil, fmt.Errorf("getting PR #%d: %w", prNumber, err)
 	}
 
-	appIdentity, err := client.GetAppIdentity(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("getting app identity: %w", err)
+	mergeCommitSHA := originalPR.GetMergeCommitSHA()
+	if mergeCommitSHA == "" {
+		return nil, fmt.Errorf("PR #%d does not have a merge commit SHA", prNumber)
 	}
 
-	// Check if backport was already merged by looking for the original PR
-	// title in the release branch history.
-	alreadyMerged, err := client.CommitExistsWithPattern(ctx, gh.FindCommitParams{
-		Branch:  targetBranch,
-		Pattern: originalPR.GetTitle(),
+	cherryPickedCommit, err := client.FindCherryPickedCommit(ctx, gh.FindCherryPickedCommitParams{
+		Branch:      targetBranch,
+		OriginalSHA: mergeCommitSHA,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("checking for existing backport: %w", err)
 	}
-	if alreadyMerged {
-		fmt.Printf("ℹ️  Backport already merged (found commit with title %q in %s)\n", originalPR.GetTitle(), targetBranch)
+	if cherryPickedCommit != nil {
+		fmt.Printf("ℹ️  Backport already merged (found cherry-pick of %s in %s)\n", mergeCommitSHA, targetBranch)
 		return nil, nil
 	}
 
-	commitSHA, err := client.FindCommitWithPattern(ctx, gh.FindCommitParams{
-		Branch:  "main",
-		Pattern: fmt.Sprintf("(#%d)", prNumber),
-	})
-	if err != nil {
-		return nil, fmt.Errorf("finding commit for PR #%d: %w", prNumber, err)
-	}
-	fmt.Printf("   Found commit: %s\n", commitSHA)
+	fmt.Printf("   Found commit: %s\n", mergeCommitSHA)
 	fmt.Printf("   Backport branch: %s\n", backportBranch)
 
 	return &backportInfo{
 		PRNumber:       prNumber,
 		OriginalPR:     originalPR,
-		MergeCommitSHA: originalPR.GetMergeCommitSHA(),
-		CommitSHA:      commitSHA,
-		AppIdentity:    appIdentity,
+		MergeCommitSHA: mergeCommitSHA,
 		TargetBranch:   targetBranch,
 		BackportBranch: backportBranch,
 	}, nil
@@ -220,7 +242,7 @@ func resetWorkingCopy(originalBranch, backportBranch string) {
 }
 
 func createBackportPR(ctx context.Context, client *gh.Client, info *backportInfo) (*github.PullRequest, error) {
-	title := backportPRTitle(info.OriginalPR.GetTitle())
+	title := getBackportPRTitle(info.OriginalPR.GetTitle())
 
 	body := fmt.Sprintf(`## Backport of #%d
 
@@ -250,7 +272,27 @@ This PR backports #%d to %s.
 	})
 }
 
-func backportPRTitle(originalTitle string) string {
+func createBackportCommit(ctx context.Context, client *gh.Client, branch, expectedHeadOID, message string, changes git.StagedDiff) (string, error) {
+	additions := make([]gh.FileAddition, 0, len(changes.Additions))
+	for _, addition := range changes.Additions {
+		additions = append(additions, gh.FileAddition{
+			Path:     addition.Path,
+			Contents: addition.Contents,
+		})
+	}
+
+	headline, body, _ := strings.Cut(strings.TrimSpace(message), "\n")
+	return client.CreateCommitOnBranch(ctx, gh.CreateCommitOnBranchParams{
+		Branch:          branch,
+		ExpectedHeadOID: expectedHeadOID,
+		Headline:        strings.TrimSpace(headline),
+		Body:            strings.TrimSpace(body),
+		Additions:       additions,
+		Deletions:       changes.Deletions,
+	})
+}
+
+func getBackportPRTitle(originalTitle string) string {
 	return fmt.Sprintf("%s [backport]", originalTitle)
 }
 
@@ -289,7 +331,7 @@ Then create a PR from `+"`%s`"+` to `+"`%s`"+` with the title:
 		info.BackportBranch,
 		info.BackportBranch,
 		info.TargetBranch,
-		backportPRTitle(info.OriginalPR.GetTitle()),
+		getBackportPRTitle(info.OriginalPR.GetTitle()),
 	)
 
 	if err := client.CreateIssueComment(ctx, info.PRNumber, comment); err != nil {
