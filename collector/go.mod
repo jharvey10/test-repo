@@ -5,7 +5,7 @@ module github.com/jharvey10/test-repo/otel_engine
 go 1.25.1
 
 require (
-	github.com/jharvey10/test-repo v1.33.0
+	github.com/jharvey10/test-repo v1.35.1
 	github.com/open-telemetry/opentelemetry-collector-contrib/connector/countconnector v0.147.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/connector/spanmetricsconnector v0.147.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/extension/basicauthextension v0.147.0
