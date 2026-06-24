@@ -2,11 +2,11 @@ dist:
   module: github.com/jharvey10/test-repo/otel_engine
   name: test-repo
   description: Test Repo OTel Collector distribution.
-  version: v1.35.0 # x-release-please-version
+  version: v1.35.1 # x-release-please-version
   output_path: .
 
 extensions:
-  - gomod: github.com/jharvey10/test-repo v1.33.0 # x-release-please-version
+  - gomod: github.com/jharvey10/test-repo v1.35.1 # x-release-please-version
     import: github.com/jharvey10/test-repo/extension/baseengine
     name: baseengine
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/basicauthextension v0.147.0
