@@ -81,7 +81,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           RELEASE_BRANCH: ${{ steps.root-release-branch.outputs.name }}
         run: |
-          go run -C tools ./cmd sync-replaces --builder-config ../collector/builder-config.yaml --go-mod ../go.mod
+          go run -C tools ./cmd sync-replaces --builder-config ../collector/builder-config.yml --go-mod ../go.mod
 
           if [ -z "$(git status --porcelain)" ]; then
             echo "Collector generation produced no diff; nothing to commit."
