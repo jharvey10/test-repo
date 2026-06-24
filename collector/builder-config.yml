@@ -37,3 +37,7 @@ replaces:
   # Local modules.
   - github.com/jharvey10/test-repo => ../
   - github.com/jharvey10/test-repo/syntax => ../syntax
+  # <BEGIN_SHARED_REPLACE_DIRECTIVES>
+  # Replace golang.org/x/sync with something silly for testing
+  - golang.org/x/sync => golang.org/x/sync v0.10.0
+  # <END_SHARED_REPLACE_DIRECTIVES>

@@ -20,7 +20,7 @@ func main() {
 	info := component.BuildInfo{
 		Command:     "test-repo",
 		Description: "Test Repo OTel Collector distribution.",
-		Version:     "v1.33.0",
+		Version:     "v1.35.0",
 	}
 
 	set := otelcol.CollectorSettings{
