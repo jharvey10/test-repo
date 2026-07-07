@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.36.0](https://github.com/jharvey10/test-repo/compare/v1.35.0...v1.36.0) (2026-07-07)
+
+
+### Features 🌟
+
+* It's so great ([0c5a5f1](https://github.com/jharvey10/test-repo/commit/0c5a5f115e4fe097913831433dcb1edeeaa313e8))
+
+
+### Bug Fixes 🐛
+
+* **syntax:** Release syntax 0.1.2 ([#259](https://github.com/jharvey10/test-repo/issues/259)) ([5db3b91](https://github.com/jharvey10/test-repo/commit/5db3b912fe844e2b04292fe051d55e25de31ad39))
+
 ## [1.35.0](https://github.com/jharvey10/test-repo/compare/v1.34.0...v1.35.0) (2026-05-14)
 
 
