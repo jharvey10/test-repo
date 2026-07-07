@@ -18,5 +18,5 @@ more great features
 good stuff
 another amazing thing to backport
 wowfile is the best
-its great
+its great - this is a bug fix
 it's amazing
