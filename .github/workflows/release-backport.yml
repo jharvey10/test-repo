@@ -101,10 +101,13 @@ jobs:
         label: ${{ fromJSON(needs.collect-backports.outputs.labels) }}
     steps:
       - name: Generate token 🔐
-        uses: grafana/shared-workflows/actions/create-github-app-token@46f48da11e78ebdba7a8747ae456b11062fac83e # create-github-app-token/v0.3.1
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         id: app-token
         with:
-          github_app: ${{ env.ALLOYBOT_APP_NAME }}
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: jharvey10
+          repositories: test-repo
 
       - name: Checkout repository 🛎️
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
