@@ -30,6 +30,7 @@ jobs:
         with:
           ref: ${{ github.ref_name }}
           token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Setup tools 🛠️ # zizmor: ignore[cache-poisoning] Workflow does not directly create artifacts.
@@ -65,7 +66,7 @@ jobs:
           fi
 
           echo "name=${RELEASE_BRANCH}" >> "${GITHUB_OUTPUT}"
-          if ! git fetch --depth=1 origin "refs/heads/${RELEASE_BRANCH}:refs/remotes/origin/${RELEASE_BRANCH}" >/dev/null 2>&1; then
+          if ! git fetch origin "refs/heads/${RELEASE_BRANCH}:refs/remotes/origin/${RELEASE_BRANCH}" >/dev/null 2>&1; then
             echo "No root release-please branch ${RELEASE_BRANCH}; nothing to regenerate."
             echo "exists=false" >> "${GITHUB_OUTPUT}"
             exit 0
