@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/jharvey10/test-repo/compare/syntax/v0.1.2...syntax/v0.1.3) (2026-07-16)
+
+
+### Bug Fixes 🐛
+
+* Add comment about nonsense change ([#276](https://github.com/jharvey10/test-repo/issues/276)) ([d177e9a](https://github.com/jharvey10/test-repo/commit/d177e9ad4cfe65b4f2d6c16655edd73e477c6c51))
+
 ## [0.1.2](https://github.com/jharvey10/test-repo/compare/syntax/v0.1.1...syntax/v0.1.2) (2026-05-14)
 
 
