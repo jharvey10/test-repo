@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.37.0](https://github.com/jharvey10/test-repo/compare/v1.36.0...v1.37.0) (2026-07-16)
+
+
+### Features 🌟
+
+* Simplify wowfile.txt by removing unnecessary lines ([#275](https://github.com/jharvey10/test-repo/issues/275)) ([2af59de](https://github.com/jharvey10/test-repo/commit/2af59deef9d883ea746ae6417d0b2ba582932844))
+
+
+### Bug Fixes 🐛
+
+* Add comment to Makefile for clarity ([#272](https://github.com/jharvey10/test-repo/issues/272)) ([13fd877](https://github.com/jharvey10/test-repo/commit/13fd87759189404b00da757ab16d8c2abfde1458))
+* Clarify statement about 'wowfile' in bug fix ([#268](https://github.com/jharvey10/test-repo/issues/268)) ([09441da](https://github.com/jharvey10/test-repo/commit/09441da42b4fecf32314dd85c35c21ac61dad98f))
+* Improve bug fix description in wowfile.txt ([#270](https://github.com/jharvey10/test-repo/issues/270)) ([8a8a1c5](https://github.com/jharvey10/test-repo/commit/8a8a1c52e2e2c494ae38910b177a08e6e02ec60d))
+* Update README with feature and patch notes ([#271](https://github.com/jharvey10/test-repo/issues/271)) ([8d52281](https://github.com/jharvey10/test-repo/commit/8d52281a73fa8ecc2c801a44eac253e5b12625ba))
+
 ## [1.36.0](https://github.com/jharvey10/test-repo/compare/v1.35.0...v1.36.0) (2026-07-07)
 
 
