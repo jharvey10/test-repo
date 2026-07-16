@@ -10,6 +10,8 @@ import (
 
 var Version string
 
+// This is a nonsense change
+
 var constants = map[string]string{
 	"hostname": "", // Initialized via init function
 	"os":       runtime.GOOS,
