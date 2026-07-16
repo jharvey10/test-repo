@@ -6,17 +6,4 @@ more
 slimming it down
 its a bad fix
 it's a really good thing
-hello again
-more stuff
-oh hey there its one more change
-some feature change
-meh we need a fix
-hi there
-mmmm
-amazing feature stuff
-more great features
-good stuff
-another amazing thing to backport
-wowfile is the best
-its great - this is a bug fix
-it's amazing - this is a better bugfix
+this is a fantastic change
