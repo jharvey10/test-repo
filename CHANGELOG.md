@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.36.1](https://github.com/jharvey10/test-repo/compare/v1.36.0...v1.36.1) (2026-07-16)
+
+
+### Bug Fixes 🐛
+
+* Add comment to Makefile for clarity [backport] ([#273](https://github.com/jharvey10/test-repo/issues/273)) ([8835d54](https://github.com/jharvey10/test-repo/commit/8835d54f6d48fbdab803188b66617d05f35df836))
+
 ## [1.36.0](https://github.com/jharvey10/test-repo/compare/v1.35.0...v1.36.0) (2026-07-07)
 
 
